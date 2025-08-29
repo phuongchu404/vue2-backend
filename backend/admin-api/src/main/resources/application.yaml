@@ -1,0 +1,7 @@
+build:
+  name: ${pom.name}
+  version: ${pom.version}
+  date: ${timestamp}
+spring:
+  profiles:
+    active: dev

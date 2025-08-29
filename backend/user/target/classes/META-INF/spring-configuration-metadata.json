@@ -1,0 +1,11 @@
+{
+  "groups": [
+    {
+      "name": "login",
+      "type": "vn.mk.eid.user.LoginProperties",
+      "sourceType": "vn.mk.eid.user.LoginProperties"
+    }
+  ],
+  "properties": [],
+  "hints": []
+}

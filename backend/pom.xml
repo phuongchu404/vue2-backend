@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>admin-detainee</artifactId>
+    <groupId>vn.mk.eid.detainee</groupId>
+    <version>2.0.0</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <springfox.swagger2.version>2.9.2</springfox.swagger2.version>
+        <io.swagger.version>1.5.21</io.swagger.version>
+        <codec.version>1.11</codec.version>
+        <zxing.version>3.3.0</zxing.version>
+        <jjwt.version>0.9.0</jjwt.version>
+        <mp.version>3.0.7.1</mp.version>
+        <spring.boot.version>2.6.3</spring.boot.version>
+        <xstream.version>1.4.10</xstream.version>
+        <commons.csv.version>1.5</commons.csv.version>
+        <commons.net.version>3.6</commons.net.version>
+        <jsch.version>0.1.54</jsch.version>
+        <alibaba.fastjson.version>1.2.54</alibaba.fastjson.version>
+        <biometrics.sdk.version>11.2.0</biometrics.sdk.version>
+        <springdata.jpa.version>2.1.4.RELEASE</springdata.jpa.version>
+        <oracle.driver.version>12.1.0.2</oracle.driver.version>
+        <apache.poi.version>3.15</apache.poi.version>
+    </properties>
+
+    <modules>
+        <module>user</module>
+        <module>admin-api</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>vn.mk.eid.detainee</groupId>
+                <artifactId>common</artifactId>
+                <version>2.0.0</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>vn.mk.eid.detainee</groupId>
+                <artifactId>common-dao</artifactId>
+                <version>2.0.0</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>vn.mk.eid.detainee</groupId>
+                <artifactId>admin-detainee</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>vn.mk.eid.detainee</groupId>
+                <artifactId>admin-api</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mp.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>${xstream.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.zxing</groupId>
+                <artifactId>javase</artifactId>
+                <version>${zxing.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-csv</artifactId>
+                <version>${commons.csv.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>${commons.net.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jcraft</groupId>
+                <artifactId>jsch</artifactId>
+                <version>${jsch.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${alibaba.fastjson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${apache.poi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${apache.poi.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.8.6</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>
