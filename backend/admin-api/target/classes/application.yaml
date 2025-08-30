@@ -1,7 +1,0 @@
-build:
-  name: ${pom.name}
-  version: 2.0.0
-  date: 2025-08-29 03:43
-spring:
-  profiles:
-    active: dev
