@@ -39,9 +39,8 @@ public class WardServiceImpl implements WardService {
 
     @Override
     public ServiceResult findByProvinceCode(String provinceCode) {
-        WardEntity wardEntity = wardRepository.findByProvinceCode(provinceCode)
-                .orElseThrow(() -> new ResourceNotFoundException("Ward not found with province code: " + provinceCode));
-        return ServiceResult.ok(convertToResponse(wardEntity));
+        List<WardEntity> wards = wardRepository.findByProvinceCode(provinceCode);
+        return ServiceResult.ok(wards.stream().map(this::convertToResponse));
     }
 
     private WardResponse convertToResponse(WardEntity entity) {

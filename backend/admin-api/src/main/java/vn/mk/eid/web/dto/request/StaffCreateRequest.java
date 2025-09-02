@@ -18,7 +18,7 @@ public class StaffCreateRequest {
     @NotBlank(message = ExceptionConstants.STAFF_NAME_NOT_NULL)
     private String fullName;
 
-    private Integer gender = Gender.OTHER.getId();
+    private String gender;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;

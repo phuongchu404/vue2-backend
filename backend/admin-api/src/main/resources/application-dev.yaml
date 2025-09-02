@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://10.30.21.124:5432/erms_v10
-    username: dev
-    password: Ab123456
+    url: jdbc:postgresql://localhost:5432/erms_v10
+    username: postgres
+    password: 123456
     driver-class-name: org.postgresql.Driver
 
   redis:
@@ -66,8 +66,8 @@ logging:
 
 minio:
   access:
-    name: 5PfJfdPpv9492wCFGXf6
-    secret: Sl1STEhdPdgR5sviIuPKYq3PeftoTOlNTSEf2U2q
+    name: admin
+    secret: admin123
   url: http://localhost:9000
   bucket-public: detention-center-public
   bucket-public-policy: |

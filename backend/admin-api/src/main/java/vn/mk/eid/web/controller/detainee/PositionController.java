@@ -27,6 +27,6 @@ public class PositionController {
     @GetMapping("/all")
     @Operation(summary = "Get all position", description = "Get all position")
     public ServiceResult getWithPaging(QueryPositionRequest request) {
-        return positionService.getWithPaging(request);
+        return positionService.getAll();
     }
 }

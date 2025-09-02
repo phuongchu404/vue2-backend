@@ -6,7 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.mk.eid.common.dao.entity.DetentionCenterEntity;
+import vn.mk.eid.common.dao.entity.ProvinceEntity;
+import vn.mk.eid.common.dao.entity.WardEntity;
 import vn.mk.eid.common.dao.repository.DetentionCenterRepository;
+import vn.mk.eid.common.dao.repository.ProvinceRepository;
+import vn.mk.eid.common.dao.repository.WardRepository;
 import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.web.dto.request.DetentionCenterCreateRequest;
 import vn.mk.eid.web.dto.request.DetentionCenterSearchRequest;
@@ -22,6 +26,8 @@ import java.util.stream.Collectors;
 public class DetentionCenterServiceImpl implements DetentionCenterService {
 
     private final DetentionCenterRepository detentionCenterRepository;
+    private final WardRepository wardRepository;
+    private final ProvinceRepository provinceRepository;
 
     @Override
     public ServiceResult createDetentionCenter(DetentionCenterCreateRequest request) {
@@ -37,7 +43,7 @@ public class DetentionCenterServiceImpl implements DetentionCenterService {
         center.setDeputyDirector(request.getDeputyDirector());
         center.setEstablishedDate(request.getEstablishedDate());
         center.setCapacity(request.getCapacity());
-        center.setCurrentPopulation(0);
+        center.setCurrentPopulation(request.getCurrentPopulation());
         center.setIsActive(true);
 
         center = detentionCenterRepository.save(center);
@@ -75,6 +81,7 @@ public class DetentionCenterServiceImpl implements DetentionCenterService {
         center.setDeputyDirector(request.getDeputyDirector());
         center.setEstablishedDate(request.getEstablishedDate());
         center.setCapacity(request.getCapacity());
+        center.setCurrentPopulation(request.getCurrentPopulation());
 
         center = detentionCenterRepository.save(center);
         log.info("Updated detention center: {}", center.getName());
@@ -88,7 +95,7 @@ public class DetentionCenterServiceImpl implements DetentionCenterService {
 
         detentionCenterRepository.delete(center);
         log.info("Deleted detention center: {}", center.getName());
-        return ServiceResult.ok("Detention center deleted successfully");
+        return ServiceResult.ok(Boolean.TRUE);
     }
 
     @Override
@@ -117,8 +124,15 @@ public class DetentionCenterServiceImpl implements DetentionCenterService {
         response.setName(center.getName());
         response.setCode(center.getCode());
         response.setAddress(center.getAddress());
-        response.setWardId(center.getWardId());
+
+        ProvinceEntity province = provinceRepository.findById(center.getProvinceId()).orElse(null);
+        response.setProvinceFullName(province.getFullName());
         response.setProvinceId(center.getProvinceId());
+
+        WardEntity ward = wardRepository.findById(center.getWardId()).orElse(null);
+        response.setWardFullName(ward.getFullName());
+        response.setWardId(center.getWardId());
+
         response.setPhone(center.getPhone());
         response.setEmail(center.getEmail());
         response.setDirector(center.getDirector());

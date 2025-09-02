@@ -23,7 +23,7 @@ public class WardController {
         return wardService.findAll(request);
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/by-code/{code}")
     @Operation(summary = "Get Ward by code", description = "Get Ward by code")
     public ServiceResult getWardByCode(String code) {
         return wardService.findByCode(code);

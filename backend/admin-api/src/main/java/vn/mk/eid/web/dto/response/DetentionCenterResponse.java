@@ -14,7 +14,9 @@ public class DetentionCenterResponse {
     private String code;
     private String address;
     private String wardId;
+    private String wardFullName;
     private String provinceId;
+    private String provinceFullName;
     private String phone;
     private String email;
     private String director;

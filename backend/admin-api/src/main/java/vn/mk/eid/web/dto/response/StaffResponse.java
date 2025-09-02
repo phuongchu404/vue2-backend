@@ -19,19 +19,15 @@ public class StaffResponse {
     private String staffCode;
     private String profileNumber;
     private String fullName;
-    private Integer gender;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String genderText;
+    private String gender;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
-
     private String placeOfBirth;
     private String idNumber;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate idIssueDate;
-
     private String idIssuePlace;
 
     private Integer ethnicityId;
@@ -42,11 +38,15 @@ public class StaffResponse {
 
     private String permanentAddress;
     private String permanentWardId;
+    private String permanentWardFullName;
     private String permanentProvinceId;
+    private String permanentProvinceFullName;
 
     private String temporaryAddress;
     private String temporaryWardId;
+    private String temporaryWardFullName;
     private String temporaryProvinceId;
+    private String temporaryProvinceFullName;
 
     private String phone;
     private String email;
@@ -63,10 +63,12 @@ public class StaffResponse {
 
     private Integer positionId;
     private String positionName;
+
     private String rank;
 
     private Integer educationLevelId;
     private String educationLevelName;
+
     private String status;
     private Boolean isActive;
 
@@ -75,36 +77,4 @@ public class StaffResponse {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-
-    public StaffResponse(Integer id, String staffCode, String profileNumber, String fullName, String genderText, LocalDate dateOfBirth, String placeOfBirth, String idNumber, String ethnicityName, String religionName, String phone, String email, String departmentName, String positionName, String rank, String educationLevelName, String status, Boolean isActive, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.staffCode = staffCode;
-        this.profileNumber = profileNumber;
-        this.fullName = fullName;
-        this.genderText = genderText;
-        this.dateOfBirth = dateOfBirth;
-        this.placeOfBirth = placeOfBirth;
-        this.idNumber = idNumber;
-        this.ethnicityName = ethnicityName;
-        this.religionName = religionName;
-        this.phone = phone;
-        this.email = email;
-        this.departmentName = departmentName;
-        this.positionName = positionName;
-        this.rank = rank;
-        this.educationLevelName = educationLevelName;
-        this.status = status;
-        this.isActive = isActive;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    public Integer getGender() {
-        if (gender == null && StringUtil.isNotBlank(this.genderText)) {
-            Integer genderId = Gender.getIdByCode(this.genderText);
-            this.genderText = null;
-            return genderId;
-        }
-        return gender;
-    }
 }

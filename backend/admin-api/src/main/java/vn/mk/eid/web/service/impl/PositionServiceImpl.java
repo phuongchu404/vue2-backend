@@ -9,6 +9,7 @@ import vn.mk.eid.common.dao.entity.PositionEntity;
 import vn.mk.eid.common.dao.repository.PositionRepository;
 import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.web.dto.request.QueryPositionRequest;
+import vn.mk.eid.web.dto.response.PositionResponse;
 import vn.mk.eid.web.service.PositionService;
 import vn.mk.eid.web.specification.DepartmentSpecification;
 import vn.mk.eid.web.specification.PositionSpecification;
@@ -35,5 +36,21 @@ public class PositionServiceImpl implements PositionService {
             positions = positionRepository.findAll(PositionSpecification.getPositionSpecification(request), pageable).getContent();
         }
         return ServiceResult.ok(positions);
+    }
+
+    @Override
+    public ServiceResult getAll() {
+        List<PositionEntity> positions = positionRepository.findAll();
+
+        return ServiceResult.ok(positions.stream().map(this::convertToResponse));
+    }
+
+    private PositionResponse convertToResponse(PositionEntity position) {
+        PositionResponse positionResponse = new PositionResponse();
+        positionResponse.setId(position.getId());
+        positionResponse.setCode(position.getCode());
+        positionResponse.setName(position.getName());
+        positionResponse.setLevel(position.getLevel());
+        return positionResponse;
     }
 }

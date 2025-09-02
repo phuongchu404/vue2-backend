@@ -36,4 +36,6 @@ public class DetentionCenterUpdateRequest {
     private LocalDate establishedDate;
 
     private Integer capacity;
+
+    private Integer currentPopulation;
 }

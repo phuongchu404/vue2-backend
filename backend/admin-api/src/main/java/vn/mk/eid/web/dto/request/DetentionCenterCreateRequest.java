@@ -37,4 +37,7 @@ public class DetentionCenterCreateRequest {
 
     @Min(1)
     private Integer capacity;
+
+    @Min(1)
+    private Integer currentPopulation;
 }
