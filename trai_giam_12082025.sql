@@ -377,3 +377,13 @@ CREATE TABLE transfer_history (
     UNIQUE(detainee_id, transfer_date) -- Mỗi phạm nhân chỉ có một lịch sử chuyển trại tại một thời điểm
 );
 
+CREATE INDEX IF NOT EXISTS idx_wards_province    ON wards (province_code);
+CREATE INDEX IF NOT EXISTS idx_staff_perm_ward   ON staff (permanent_ward_id);
+CREATE INDEX IF NOT EXISTS idx_staff_temp_ward   ON staff (temporary_ward_id);
+
+CREATE INDEX IF NOT EXISTS idx_staff_ethnicity_id       ON staff (ethnicity_id);
+CREATE INDEX IF NOT EXISTS idx_staff_religion_id        ON staff (religion_id);
+CREATE INDEX IF NOT EXISTS idx_staff_department_id      ON staff (department_id);
+CREATE INDEX IF NOT EXISTS idx_staff_position_id        ON staff (position_id);
+CREATE INDEX IF NOT EXISTS idx_staff_education_level_id ON staff (education_level_id);
+CREATE INDEX IF NOT EXISTS idx_staff_detention_center_id ON staff (detention_center_id);
