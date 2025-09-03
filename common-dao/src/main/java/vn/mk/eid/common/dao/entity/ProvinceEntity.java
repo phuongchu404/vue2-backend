@@ -43,6 +43,10 @@ public class ProvinceEntity {
     @Column(name = "code_name")
     private String codeName;
 
-    @Column(name = "administrative_unit_id")
-    private Integer administrativeUnitId;
+    //    @Column(name = "administrative_unit_id")
+//    private Integer administrativeUnitId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "administrative_unit_id", referencedColumnName = "id")
+    private AdministrativeUnitEntity administrativeUnit;
 }

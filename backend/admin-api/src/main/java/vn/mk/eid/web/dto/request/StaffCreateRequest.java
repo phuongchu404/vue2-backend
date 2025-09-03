@@ -41,13 +41,13 @@ public class StaffCreateRequest {
 
     private String permanentWardId;
 
-    private String permanentProvinceId;
+//    private String permanentProvinceId;
 
     private String temporaryAddress;
 
     private String temporaryWardId;
 
-    private String temporaryProvinceId;
+//    private String temporaryProvinceId;
 
     private String phone;
 

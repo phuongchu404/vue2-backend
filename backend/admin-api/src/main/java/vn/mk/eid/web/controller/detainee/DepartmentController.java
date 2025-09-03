@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.mk.eid.common.data.ServiceResult;
@@ -26,5 +27,10 @@ public class DepartmentController {
     @Operation(summary = "Get all department", description = "Get all department")
     public ServiceResult getWithPaging(QueryDepartmentRequest request) {
         return departmentService.getWithPaging(request);
+    }
+    @GetMapping("/by-detention-center/{id}")
+    @Operation(summary = "Get all department by detention center id", description = "Get all department by dentention center id")
+    public ServiceResult getByDetentionCenter(@PathVariable Integer id) {
+        return departmentService.getByDententionCenterId(id);
     }
 }

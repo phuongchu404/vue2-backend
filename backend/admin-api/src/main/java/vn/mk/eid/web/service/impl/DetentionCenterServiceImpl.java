@@ -95,7 +95,7 @@ public class DetentionCenterServiceImpl implements DetentionCenterService {
 
         detentionCenterRepository.delete(center);
         log.info("Deleted detention center: {}", center.getName());
-        return ServiceResult.ok(Boolean.TRUE);
+        return ServiceResult.ok("Detention center deleted successfully");
     }
 
     @Override
@@ -125,13 +125,17 @@ public class DetentionCenterServiceImpl implements DetentionCenterService {
         response.setCode(center.getCode());
         response.setAddress(center.getAddress());
 
-        ProvinceEntity province = provinceRepository.findById(center.getProvinceId()).orElse(null);
-        response.setProvinceFullName(province.getFullName());
-        response.setProvinceId(center.getProvinceId());
+        if(center.getProvinceId() != null){
+            ProvinceEntity province = provinceRepository.findById(center.getProvinceId()).orElse(null);
+            response.setProvinceFullName(province.getFullName());
+            response.setProvinceId(center.getProvinceId());
+        }
 
-        WardEntity ward = wardRepository.findById(center.getWardId()).orElse(null);
-        response.setWardFullName(ward.getFullName());
-        response.setWardId(center.getWardId());
+        if(center.getWardId() != null){
+            WardEntity ward = wardRepository.findById(center.getWardId()).orElse(null);
+            response.setWardFullName(ward.getFullName());
+            response.setWardId(center.getWardId());
+        }
 
         response.setPhone(center.getPhone());
         response.setEmail(center.getEmail());

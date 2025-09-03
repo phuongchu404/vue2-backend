@@ -31,8 +31,13 @@ public class StaffRepositoryImpl implements StaffRepositoryCustom {
             .append(" left join religions r on s.religion_id = r.id ")
             .append(" left join departments d on s.department_id = d.id ")
             .append(" left join positions p on s.position_id = p.id ")
+            .append(" left join wards pw on pw.code = s.permanent_ward_id ")
+                .append(" LEFT JOIN provinces pp ON pp.code = pw.province_code ")
+            .append(" left join wards tw on tw.code = s.temporary_ward_id ")
+                .append(" LEFT JOIN provinces tp ON tp.code = tw.province_code ")
             .append(" left join education_levels el on s.education_level_id = el.id ")
-            .append(" WHERE 1 = 1 ");
+                .append(" left join detention_centers dc on s.detention_center_id = dc.id ")
+            .append(" WHERE 1 = 1 and s.is_active = true ");
 
         // staffCode
         if (StringUtil.isNotBlank(request.getStaffCode())) {
@@ -63,19 +68,30 @@ public class StaffRepositoryImpl implements StaffRepositoryCustom {
                     " s.staff_code     staffCode, " +
                     " s.profile_number profileNumber, " +
                     " s.full_name      fullName, " +
-                    " s.gender genderText, " +
+                    " s.gender, " +
                     " s.date_of_birth  dateOfBirth, " +
                     " s.place_of_birth placeOfBirth, " +
                     " s.id_number      idNumber, " +
+                    " s.id_issue_date      idIssueDate, " +
+                    " s.id_issue_place      idIssuePlace, " +
                     " e.name           ethnicityName, " +
                     " r.name           religionName, " +
+                    " s.permanent_address           permanentAddress, " +
+                    " pp.full_name           permanentProvinceFullName, " +
+                    " pw.full_name           permanentWardFullName, " +
+                    " s.temporary_address            temporaryAddress, " +
+                    " tp.full_name           temporaryProvinceFullName, " +
+                    " tw.full_name           temporaryWardFullName, " +
                     " s.phone, " +
                     " s.email, " +
+                    " s.emergency_contact   emergencyContact, " +
+                    " s.emergency_phone emergencyPhone, " +
+                    " dc.name   detentionCenterName, " +
                     " d.name           departmentName, " +
                     " p.name           positionName, " +
                     " s.rank, " +
                     " el.name          educationLevelName, " +
-                    " status, " +
+                    " s.status, " +
                     " s.is_active      isActive, " +
                     " s.created_at     createdAt, " +
                     " s.updated_at     updatedAt ";

@@ -5,4 +5,6 @@ import vn.mk.eid.web.dto.request.QueryDepartmentRequest;
 
 public interface DepartmentService {
     ServiceResult getWithPaging(QueryDepartmentRequest request);
+
+    ServiceResult getByDententionCenterId(Integer dententionCenterId);
 }

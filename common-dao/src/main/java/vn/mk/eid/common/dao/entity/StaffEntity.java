@@ -76,9 +76,9 @@ public class StaffEntity {
     @Column(name = "permanent_ward_id", length = 20)
     private String permanentWardId;
 
-    @javax.validation.constraints.Size(max = 20)
-    @Column(name = "permanent_province_id", length = 20)
-    private String permanentProvinceId;
+//    @javax.validation.constraints.Size(max = 20)
+//    @Column(name = "permanent_province_id", length = 20)
+//    private String permanentProvinceId;
 
     // địa chỉ tạm trú
     @Column(name = "temporary_address")
@@ -89,9 +89,9 @@ public class StaffEntity {
     @Column(name = "temporary_ward_id", length = 20)
     private String temporaryWardId;
 
-    @javax.validation.constraints.Size(max = 20)
-    @Column(name = "temporary_province_id", length = 20)
-    private String temporaryProvinceId;
+//    @javax.validation.constraints.Size(max = 20)
+//    @Column(name = "temporary_province_id", length = 20)
+//    private String temporaryProvinceId;
 
     @javax.validation.constraints.Size(max = 20)
     @Column(name = "phone", length = 20)

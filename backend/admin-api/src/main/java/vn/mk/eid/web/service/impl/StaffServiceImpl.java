@@ -45,6 +45,8 @@ public class StaffServiceImpl implements StaffService {
     private final ReligionRepository religionRepository;
     private final RedisService redisService;
     private final SequenceService sequenceService;
+    private final ProvinceRepository provinceRepository;
+    private final WardRepository wardRepository;
 
     @Override
     public ServiceResult getStaffWithPaging(QueryStaffRequest request, Pageable pageable) {
@@ -63,7 +65,7 @@ public class StaffServiceImpl implements StaffService {
         BeanUtils.copyProperties(request, staffEntity);
 
         staffEntity.setStaffCode(staffCode);
-        staffEntity.setGender(Gender.getCodeById(request.getGender()));
+        staffEntity.setGender(request.getGender());
         staffEntity.setStatus(StaffStatus.ACTIVE.name());
         staffEntity.setIsActive(Boolean.TRUE);
 
@@ -79,7 +81,7 @@ public class StaffServiceImpl implements StaffService {
 
         BeanUtils.copyProperties(request, staffEntity);
         if (request.getGender() != null) {
-            staffEntity.setGender(Gender.getCodeById(request.getGender()));
+            staffEntity.setGender(request.getGender());
         }
         staffRepository.save(staffEntity);
         log.info("[STAFF] Staff updated");
@@ -89,8 +91,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public ServiceResult deleteStaff(Integer id) {
         StaffEntity staffEntity = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.STAFF_NOT_FOUND));
-        staffEntity.setIsActive(Boolean.FALSE);
-        staffRepository.save(staffEntity);
+        staffRepository.delete(staffEntity);
         log.info("[STAFF] Staff deleted");
         return ServiceResult.ok();
     }
@@ -104,7 +105,7 @@ public class StaffServiceImpl implements StaffService {
     private StaffResponse convertToStaffResponse(StaffEntity staffEntity, DetentionCenterEntity detentionCenterEntity, Boolean isGetFullData) {
         StaffResponse staffResponse = new StaffResponse();
         BeanUtils.copyProperties(staffEntity, staffResponse);
-        staffResponse.setGender(Gender.getIdByCode(staffEntity.getGender()));
+        staffResponse.setGender(staffEntity.getGender());
 
         // detentionCenter Info
         if (detentionCenterEntity == null) {
@@ -150,6 +151,21 @@ public class StaffServiceImpl implements StaffService {
         if (staffEntity.getReligionId() != null) {
             Optional<ReligionEntity> optionalReligion = religionRepository.findById(staffEntity.getReligionId());
             optionalReligion.ifPresent(religionEntity -> staffResponse.setReligionName(religionEntity.getName()));
+        }
+
+        if(staffEntity.getPermanentWardId() != null) {
+            Optional<WardEntity> optionalWard = wardRepository.findById(staffEntity.getPermanentWardId());
+            optionalWard.ifPresent(wardEntity -> {
+                staffResponse.setPermanentWardId(wardEntity.getCode());
+                staffResponse.setPermanentProvinceId(wardEntity.getProvince().getCode());
+            });
+        }
+        if(staffEntity.getTemporaryWardId() != null) {
+            Optional<WardEntity> optionalWard = wardRepository.findById(staffEntity.getTemporaryWardId());
+            optionalWard.ifPresent(wardEntity -> {
+                staffResponse.setTemporaryWardId(wardEntity.getCode());
+                staffResponse.setTemporaryProvinceId(wardEntity.getProvince().getCode());
+            });
         }
         return staffResponse;
     }

@@ -43,9 +43,17 @@ public class WardEntity {
     @Column(name = "code_name")
     private String codeName;
 
-    @Column(name = "province_code")
-    private String provinceCode;
+    //    @Column(name = "province_code")
+//    private String provinceCode;
+//
+//    @Column(name = "administrative_unit_id")
+//    private Integer administrativeUnitId;
 
-    @Column(name = "administrative_unit_id")
-    private Integer administrativeUnitId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "province_code", referencedColumnName = "code")
+    private ProvinceEntity province;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "administrative_unit_id", referencedColumnName = "id")
+    private AdministrativeUnitEntity administrativeUnit;
 }

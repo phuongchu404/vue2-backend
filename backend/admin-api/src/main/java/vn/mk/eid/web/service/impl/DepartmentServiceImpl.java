@@ -8,6 +8,7 @@ import vn.mk.eid.common.dao.entity.DepartmentEntity;
 import vn.mk.eid.common.dao.repository.DepartmentRepository;
 import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.web.dto.request.QueryDepartmentRequest;
+import vn.mk.eid.web.dto.response.DepartmentResponse;
 import vn.mk.eid.web.service.DepartmentService;
 import vn.mk.eid.web.specification.DepartmentSpecification;
 
@@ -33,5 +34,19 @@ public class DepartmentServiceImpl implements DepartmentService {
             departments = departmentRepository.findAll(DepartmentSpecification.getDepartmentSpecification(request), pageable).getContent();
         }
         return ServiceResult.ok(departments);
+    }
+
+    @Override
+    public ServiceResult getByDententionCenterId(Integer dententionCenterId) {
+        List<DepartmentEntity> departments = departmentRepository.findByDetentionCenterIdAndIsActiveTrue(dententionCenterId);
+        return ServiceResult.ok(departments.stream().map(this::convertToResponse));
+    }
+
+    private DepartmentResponse convertToResponse(DepartmentEntity departmentEntity) {
+        DepartmentResponse departmentResponse = new DepartmentResponse();
+        departmentResponse.setId(departmentEntity.getId());
+        departmentResponse.setName(departmentEntity.getName());
+        departmentResponse.setCode(departmentEntity.getCode());
+        return departmentResponse;
     }
 }
