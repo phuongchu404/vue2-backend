@@ -14,10 +14,9 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends CrudRepository<UserEntity, Integer> {
-    @Query(value = "select new vn.mk.eid.common.dto.UserDto(u.id,u.userName,u.realName,u.mail,u.createTime,u.updateTime,u.removable,ur.roleId,u.phoneNumber,u2.realName) " +
+    @Query(value = "select new vn.mk.eid.common.dto.UserDto(u.id,u.userName,u.realName,u.mail,u.createTime,u.updateTime,u.removable,u.phoneNumber,u2.realName, u.description) " +
             "from UserEntity u " +
             "left join UserEntity u2 on u.createUser = u2.id " +
-            "left join UserRoleEntity ur on u.id=ur.userId " +
             "where lower(u.userName) like %:userName% " +
             "order by u.userName ")
     Page<UserDto> findAllUsersVO(@Param("userName") String userName, Pageable pageable);

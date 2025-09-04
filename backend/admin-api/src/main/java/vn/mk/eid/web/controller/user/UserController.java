@@ -23,8 +23,8 @@ public class UserController {
 
     @PostMapping
     public ServiceResult<Boolean> addUser(@RequestBody AddUserRequest request) {
-        log.info("Add user width userName: {}, realName: {}, mail: {}, phoneNumber", request.getUsername(), request.getRealName(), request.getMail(), request.getPhoneNumber());
-        return userService.addUser(request.getUsername(), request.getRealName(), request.getMail(), request.getPhoneNumber(), request.getUnitId(), request.getDescription());
+        log.info("Add user width userName: {}, realName: {}, mail: {}, phoneNumber", request.getUserName(), request.getRealName(), request.getMail(), request.getPhoneNumber());
+        return userService.addUser(request.getUserName(), request.getRealName(), request.getMail(), request.getPhoneNumber(), request.getUnitId(), request.getDescription());
     }
 
 
@@ -41,13 +41,13 @@ public class UserController {
     }
 
     @PostMapping("/passwordreset")
-    public ServiceResult<String> resetUserPassword(@RequestBody ResetPassword resetPassword) {
+    public ServiceResult<Boolean> resetUserPassword(@RequestBody ResetPassword resetPassword) {
         log.info("Reset Password width userId: {}", resetPassword.getId());
         return userService.resetUserPasswordById(resetPassword.getId(), resetPassword.getPassword());
     }
 
     @PostMapping("/password")
-    public ServiceResult<String> resetPassword(@RequestBody ResetPassword resetPassword) {
+    public ServiceResult<Boolean> resetPassword(@RequestBody ResetPassword resetPassword) {
         return userService.resetUserPasswordById(resetPassword.getId(), resetPassword.getPassword());
     }
 

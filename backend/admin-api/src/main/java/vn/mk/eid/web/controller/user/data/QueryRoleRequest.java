@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class QueryRoleRequest {
-    private String roleName;
+    private String roleName = "";
 }

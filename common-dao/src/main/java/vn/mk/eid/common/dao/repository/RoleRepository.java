@@ -15,7 +15,9 @@ import java.util.Optional;
 public interface RoleRepository extends JpaRepository<RoleEntity, Integer> {
     Optional<RoleEntity> findByRoleName(String roleName);
 
-    @Query(value = "select new vn.mk.eid.common.response.RoleResponse(r.id,r.roleName,r.description,r.createTime,r.updateTime,r.removable) from RoleEntity r where lower(r.roleName) like %:roleName%  order by r.id")
+    @Query(value = "select new vn.mk.eid.common.response.RoleResponse(r.id,r.roleName,r.description,r.createTime,r.updateTime,r.removable) " +
+            "from RoleEntity r " +
+            "where lower(r.roleName) like %:roleName%  order by r.id")
     Page<RoleResponse> searchRoleByRoleName(@Param("roleName") String roleName, Pageable pageable);
 
     Optional<RoleEntity> findById(Integer id);
