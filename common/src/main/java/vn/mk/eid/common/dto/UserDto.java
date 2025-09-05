@@ -21,9 +21,9 @@ public class UserDto implements Serializable {
     Integer idsRole;
     private String phoneNumber;
     private String createUser;
+    private String description;
 
-    public UserDto(Integer id, String userName, String realName, String mail, Date createTime, Date updateTime, Integer removable,
-                   Integer ids, String phoneNumber, String createUser) {
+    public UserDto(Integer id, String userName, String realName, String mail, Date createTime, Date updateTime, Integer removable, String phoneNumber, String createUser, String description) {
         this.id = id;
         this.userName = userName;
         this.realName = realName;
@@ -31,12 +31,12 @@ public class UserDto implements Serializable {
         this.createTime = createTime;
         this.updateTime = updateTime;
         this.removable = removable;
-        this.idsRole = ids;
         this.phoneNumber = phoneNumber;
         if (createUser == null || createUser.length() == 0) {
             this.createUser = "System";
         } else {
             this.createUser = createUser;
         }
+        this.description = description;
     }
 }
