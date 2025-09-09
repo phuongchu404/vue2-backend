@@ -84,8 +84,8 @@ public class DetaineeEntity {
     @Column(name = "permanent_ward_id", length = 20)
     private String permanentWardId;
 
-    @Column(name = "permanent_province_id", length = 20)
-    private String permanentProvinceId;
+//    @Column(name = "permanent_province_id", length = 20)
+//    private String permanentProvinceId;
 
     // dia chi tam tru
     @Column(name = "temporary_address")
@@ -94,8 +94,8 @@ public class DetaineeEntity {
     @Column(name = "temporary_ward_id", length = 20)
     private String temporaryWardId;
 
-    @Column(name = "temporary_province_id", length = 20)
-    private String temporaryProvinceId;
+//    @Column(name = "temporary_province_id", length = 20)
+//    private String temporaryProvinceId;
 
     // dia chi hien tai
     @Column(name = "current_address")
@@ -104,8 +104,8 @@ public class DetaineeEntity {
     @Column(name = "current_ward_id", length = 20)
     private String currentWardId;
 
-    @Column(name = "current_province_id", length = 20)
-    private String currentProvinceId;
+//    @Column(name = "current_province_id", length = 20)
+//    private String currentProvinceId;
 
     @Column(name = "occupation")
     private String occupation; // nghe nghiep

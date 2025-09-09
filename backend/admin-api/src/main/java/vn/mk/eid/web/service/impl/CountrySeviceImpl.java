@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 import vn.mk.eid.common.dao.entity.CountryEntity;
 import vn.mk.eid.common.dao.repository.CountryRepository;
 import vn.mk.eid.common.data.ServiceResult;
+import vn.mk.eid.web.dto.request.QueryWardRequest;
 import vn.mk.eid.web.dto.response.CountryResponse;
 import vn.mk.eid.web.service.CountrySevice;
+import vn.mk.eid.web.specification.CountrySpecification;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,9 +26,10 @@ public class CountrySeviceImpl implements CountrySevice {
     private final CountryRepository countryRepository;
 
     @Override
-    public ServiceResult getAllCountry() {
-
-        List<CountryResponse> countryResponses = countryRepository.findAll().stream()
+    public ServiceResult getAllCountry(QueryWardRequest request) {
+        List<CountryResponse> countryResponses = countryRepository
+                .findAll(CountrySpecification.getCountrySpecification(request))
+                .stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
 

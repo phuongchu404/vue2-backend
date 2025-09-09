@@ -5,21 +5,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import vn.mk.eid.common.data.ServiceResult;
-import vn.mk.eid.web.dto.request.DetaineeCreateRequest;
-import vn.mk.eid.web.dto.request.DetaineeUpdateRequest;
-import vn.mk.eid.web.dto.response.DetaineeResponse;
+import vn.mk.eid.web.dto.request.detainee.DetaineeCreateRequest;
+import vn.mk.eid.web.dto.request.detainee.DetaineeUpdateRequest;
+import vn.mk.eid.web.dto.request.detainee.QueryDetaineeRequest;
 import vn.mk.eid.web.service.DetaineeService;
 
 import javax.validation.Valid;
@@ -94,63 +90,12 @@ public class DetaineeController {
                     schema = @Schema(type = "string")),
     })
     public ServiceResult getAllDetainees(
+            QueryDetaineeRequest request,
             @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        return detaineeService.getAllDetainees(pageable);
-    }
-
-    @GetMapping("/search")
-    @Operation(summary = "Search detainees", description = "Search detainees by name")
-    @Parameters({
-            @Parameter(name = "x-access-token", in = ParameterIn.HEADER, required = true,
-                    description = "Access token",
-                    schema = @Schema(type = "string")),
-    })
-    public ServiceResult searchDetainees(
-            @Parameter(description = "Full name to search") @RequestParam String fullName,
-            @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        return detaineeService.searchDetainees(fullName, pageable);
-    }
-
-    @GetMapping("/by-status")
-    @Operation(summary = "Get detainees by status", description = "Retrieve detainees filtered by status")
-    @Parameters({
-            @Parameter(name = "x-access-token", in = ParameterIn.HEADER, required = true,
-                    description = "Access token",
-                    schema = @Schema(type = "string")),
-    })
-    public ServiceResult getDetaineesByStatus(
-            @Parameter(description = "Detainee status") @RequestParam String status,
-            @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        return detaineeService.getDetaineeByStatus(status, pageable);
-    }
-
-    @GetMapping("/by-center/{centerId}")
-    @Operation(summary = "Get detainees by detention center", description = "Retrieve detainees by detention center")
-    @Parameters({
-            @Parameter(name = "x-access-token", in = ParameterIn.HEADER, required = true,
-                    description = "Access token",
-                    schema = @Schema(type = "string")),
-    })
-    public ServiceResult getDetaineesByCenter(
-            @Parameter(description = "Detention Center ID") @PathVariable Integer centerId,
-            @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        return detaineeService.getDetaineeByCenter(centerId, pageable);
+        return detaineeService.getWithPaging(request, pageable);
     }
 
     @DeleteMapping("/{id}")

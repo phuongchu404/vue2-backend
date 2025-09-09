@@ -13,4 +13,5 @@ public interface ProvinceRepository extends JpaRepository<ProvinceEntity,String>
     Optional<ProvinceEntity> findByCode(String code);
 
     Optional<ProvinceEntity> findByName(String name);
+
 }

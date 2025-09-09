@@ -3,9 +3,9 @@ package vn.mk.eid.web.service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import vn.mk.eid.common.data.ServiceResult;
-import vn.mk.eid.web.dto.request.IdentityRecordCreateRequest;
-import vn.mk.eid.web.dto.request.IdentityRecordUpdateRequest;
-import vn.mk.eid.web.dto.request.QueryIdentityRecordRequest;
+import vn.mk.eid.web.dto.request.identity_record.IdentityRecordCreateRequest;
+import vn.mk.eid.web.dto.request.identity_record.IdentityRecordUpdateRequest;
+import vn.mk.eid.web.dto.request.identity_record.QueryIdentityRecordRequest;
 
 
 public interface IdentityRecordService {
@@ -17,7 +17,8 @@ public interface IdentityRecordService {
     ServiceResult getIdentityRecord(Long id);
 
     ServiceResult getIdentityRecordByDetaineeId(Long detaineeId);
+
     ServiceResult getIdentityRecordWithPaging(QueryIdentityRecordRequest request, Pageable pageable);
 
-    ServiceResult getPhotos(Long identityRecordId);
+    ServiceResult deleteIdentityRecord(Long id);
 }

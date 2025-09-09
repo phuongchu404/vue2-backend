@@ -67,7 +67,15 @@ public class RestExceptionResolver extends AbstractHandlerExceptionResolver {
 			} else if (ex instanceof RestClientException) {
 				String msg = new Gson().toJson(ServiceResult.fail(ResultCode.INVOKE_CORE_ERROR.getCode(), ResultCode.INVOKE_CORE_ERROR.getDescription() + ex.getMessage()));
 				writer.print(msg);
-			} else {
+			} else if (ex instanceof ResourceNotFoundException) {
+                response.setStatus(HttpStatus.BAD_REQUEST.value());
+                String msg = new Gson().toJson(ServiceResult.fail(String.valueOf(HttpStatus.BAD_REQUEST.value()), ex.getMessage()));
+                writer.print(msg);
+            } else if (ex instanceof BadRequestException) {
+                response.setStatus(HttpStatus.BAD_REQUEST.value());
+                String msg = new Gson().toJson(ServiceResult.fail(String.valueOf(HttpStatus.BAD_REQUEST.value()), ex.getMessage()));
+                writer.print(msg);
+            } else {
 				log.error("Internal Server Error", ex);
 				response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 				writer.print(getMsg("server.error"));

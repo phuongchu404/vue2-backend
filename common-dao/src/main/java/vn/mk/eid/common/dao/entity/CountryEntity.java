@@ -26,6 +26,6 @@ public class CountryEntity {
     @Column(name = "alpha_3_code", length = 3)
     private String alpha3Code;
 
-    @Column(name = "numeric _code", length = 5)
+    @Column(name = "numeric_code", length = 5)
     private String numericCode;
 }

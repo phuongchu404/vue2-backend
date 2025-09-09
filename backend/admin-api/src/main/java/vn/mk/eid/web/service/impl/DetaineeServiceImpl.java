@@ -6,52 +6,50 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.mk.eid.common.constant.Constants;
+import vn.mk.eid.common.constant.ExceptionConstants;
 import vn.mk.eid.common.dao.entity.DetaineeEntity;
 import vn.mk.eid.common.dao.entity.DetentionCenterEntity;
-import vn.mk.eid.common.dao.entity.EthnicityEntity;
-import vn.mk.eid.common.dao.entity.ReligionEntity;
+import vn.mk.eid.common.dao.entity.WardEntity;
 import vn.mk.eid.common.dao.repository.DetaineeRepository;
 import vn.mk.eid.common.dao.repository.DetentionCenterRepository;
-import vn.mk.eid.common.dao.repository.EthnicityRepository;
-import vn.mk.eid.common.dao.repository.ReligionRepository;
+import vn.mk.eid.common.dao.repository.WardRepository;
 import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.web.constant.DetaineeStatus;
 import vn.mk.eid.web.constant.Gender;
-import vn.mk.eid.web.dto.request.DetaineeCreateRequest;
-import vn.mk.eid.web.dto.request.DetaineeUpdateRequest;
+import vn.mk.eid.web.dto.request.detainee.DetaineeCreateRequest;
+import vn.mk.eid.web.dto.request.detainee.DetaineeUpdateRequest;
+import vn.mk.eid.web.dto.request.detainee.QueryDetaineeRequest;
 import vn.mk.eid.web.dto.response.DetaineeResponse;
 import vn.mk.eid.web.exception.ResourceNotFoundException;
+import vn.mk.eid.web.repository.DetaineeRepositoryCustom;
 import vn.mk.eid.web.service.DetaineeService;
 import vn.mk.eid.web.service.SequenceService;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class DetaineeServiceImpl implements DetaineeService {
     private final DetaineeRepository detaineeRepository;
-
+    private final DetaineeRepositoryCustom detaineeRepositoryCustom;
     private final DetentionCenterRepository detentionCenterRepository;
-
-    private final EthnicityRepository ethnicityRepository;
-
-    private final ReligionRepository religionRepository;
+    private final WardRepository wardRepository;
     private final SequenceService sequenceService;
 
     @Override
     public ServiceResult createDetainee(DetaineeCreateRequest request) {
         DetentionCenterEntity detentionCenter = detentionCenterRepository.findById(request.getDetentionCenterId())
-                .orElseThrow(() -> new ResourceNotFoundException("Detention Center not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETAINEE_NOT_FOUND));
 
         String detaineeCode = sequenceService.genCode(Constants.CodePrefix.DETAINEE_CODE);
         DetaineeEntity detainee = new DetaineeEntity();
         detainee.setDetaineeCode(detaineeCode);
+        detainee.setGender(request.getGender());
         detainee.setProfileNumber(request.getProfileNumber());
         detainee.setFullName(request.getFullName());
         detainee.setAliasName(request.getAliasName());
-        detainee.setGender(Gender.getCodeById(request.getGender()));
         detainee.setDateOfBirth(request.getDateOfBirth());
         detainee.setPlaceOfBirth(request.getPlaceOfBirth());
         detainee.setIdNumber(request.getIdNumber());
@@ -62,17 +60,13 @@ public class DetaineeServiceImpl implements DetaineeService {
         detainee.setReligionId(request.getReligionId());
         detainee.setNationalityId(request.getNationalityId());
 
-
         // Address information
         detainee.setPermanentAddress(request.getPermanentAddress());
         detainee.setPermanentWardId(request.getPermanentWardId());
-        detainee.setPermanentProvinceId(request.getPermanentProvinceId());
         detainee.setTemporaryAddress(request.getTemporaryAddress());
         detainee.setTemporaryWardId(request.getTemporaryWardId());
-        detainee.setTemporaryProvinceId(request.getTemporaryProvinceId());
         detainee.setCurrentAddress(request.getCurrentAddress());
         detainee.setCurrentWardId(request.getCurrentWardId());
-        detainee.setCurrentProvinceId(request.getCurrentProvinceId());
 
         // Occupation and family
         detainee.setOccupation(request.getOccupation());
@@ -104,14 +98,15 @@ public class DetaineeServiceImpl implements DetaineeService {
         updateDetentionCenterPopulation(detentionCenter);
 
         log.info("Created detainee with code: {}", detaineeCode);
-
-        return ServiceResult.ok(convertToResponse(detainee));
+        return ServiceResult.ok(convertToResponse(detainee, detentionCenter));
     }
 
     @Override
     public ServiceResult updateDetainee(Long id, DetaineeUpdateRequest request) {
         DetaineeEntity detainee = detaineeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Detainee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETAINEE_NOT_FOUND));
+        DetentionCenterEntity detentionCenter = detentionCenterRepository.findById(request.getDetentionCenterId())
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETENTION_CENTER_NOT_FOUND));
 
         // Update basic information
         detainee.setFullName(request.getFullName());
@@ -130,13 +125,10 @@ public class DetaineeServiceImpl implements DetaineeService {
         // Update addresses
         detainee.setPermanentAddress(request.getPermanentAddress());
         detainee.setPermanentWardId(request.getPermanentWardId());
-        detainee.setPermanentProvinceId(request.getPermanentProvinceId());
         detainee.setTemporaryAddress(request.getTemporaryAddress());
         detainee.setTemporaryWardId(request.getTemporaryWardId());
-        detainee.setTemporaryProvinceId(request.getTemporaryProvinceId());
         detainee.setCurrentAddress(request.getCurrentAddress());
         detainee.setCurrentWardId(request.getCurrentWardId());
-        detainee.setCurrentProvinceId(request.getCurrentProvinceId());
 
         // Update other fields
         detainee.setOccupation(request.getOccupation());
@@ -153,47 +145,31 @@ public class DetaineeServiceImpl implements DetaineeService {
 
         detainee = detaineeRepository.save(detainee);
         log.info("Updated detainee with ID: {}", id);
-        return ServiceResult.ok(convertToResponse(detainee));
+        return ServiceResult.ok(convertToResponse(detainee, detentionCenter));
     }
 
     @Override
     public ServiceResult getDetainee(Long id) {
         DetaineeEntity detainee = detaineeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Detainee not found"));
-        return ServiceResult.ok(convertToResponse(detainee));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETAINEE_NOT_FOUND));
+        DetentionCenterEntity detentionCenter = detentionCenterRepository.findById(detainee.getDetentionCenterId())
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETENTION_CENTER_NOT_FOUND));
+        return ServiceResult.ok(convertToResponse(detainee, detentionCenter));
     }
 
     @Override
     public ServiceResult getDetaineeByCode(String code) {
         DetaineeEntity detainee = detaineeRepository.findByDetaineeCode(code)
-                .orElseThrow(() -> new ResourceNotFoundException("Detainee not found"));
-        return ServiceResult.ok(convertToResponse(detainee));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETAINEE_NOT_FOUND));
+        DetentionCenterEntity detentionCenter = detentionCenterRepository.findById(detainee.getDetentionCenterId())
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETENTION_CENTER_NOT_FOUND));
+        return ServiceResult.ok(convertToResponse(detainee, detentionCenter));
     }
 
     @Override
-    public ServiceResult getAllDetainees(Pageable pageable) {
-        Page<DetaineeEntity> detainees = detaineeRepository.findAll(pageable);
-        return ServiceResult.ok(detainees.map(this::convertToResponse));
-    }
-
-    @Override
-    public ServiceResult searchDetainees(String keyword, Pageable pageable) {
-        Page<DetaineeEntity> detainees = detaineeRepository.findByFullNameContainingIgnoreCase(keyword, pageable);
-        return ServiceResult.ok(detainees.map(this::convertToResponse));
-    }
-
-    @Override
-    public ServiceResult getDetaineeByStatus(String status, Pageable pageable) {
-        Page<DetaineeEntity> detainees = detaineeRepository.findByStatus(status, pageable);
-        return ServiceResult.ok(detainees.map(this::convertToResponse));
-    }
-
-    @Override
-    public ServiceResult getDetaineeByCenter(Integer centerId, Pageable pageable) {
-        DetentionCenterEntity center = detentionCenterRepository.findById(centerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Detention Center not found"));
-        Page<DetaineeEntity> detainees = detaineeRepository.findByDetentionCenterId(center.getId(), pageable);
-        return ServiceResult.ok(detainees.map(this::convertToResponse));
+    public ServiceResult getWithPaging(QueryDetaineeRequest request, Pageable pageable) {
+        Page<DetaineeResponse> page = detaineeRepositoryCustom.getWithPaging(request, pageable);
+        return ServiceResult.ok(page);
     }
 
 //    @Override
@@ -257,20 +233,22 @@ public class DetaineeServiceImpl implements DetaineeService {
     @Override
     public ServiceResult deleteDetainee(Long id) {
         DetaineeEntity detainee = detaineeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Detainee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETAINEE_NOT_FOUND));
 
         Integer centerId = detainee.getDetentionCenterId();
         detaineeRepository.delete(detainee);
 
         if (centerId != null) {
             DetentionCenterEntity center = detentionCenterRepository.findById(centerId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Detention Center not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETENTION_CENTER_NOT_FOUND));
             updateDetentionCenterPopulation(center);
         }
 
         log.info("Deleted detainee with ID: {}", id);
         return ServiceResult.ok();
     }
+
+
 
     private String generateDetaineeCode() {
         String prefix = "DN";
@@ -279,7 +257,7 @@ public class DetaineeServiceImpl implements DetaineeService {
         return String.format("%s%s%06d", prefix, year, count);
     }
 
-    private DetaineeResponse convertToResponse(DetaineeEntity detainee) {
+    private DetaineeResponse convertToResponse(DetaineeEntity detainee, DetentionCenterEntity detentionCenter) {
         DetaineeResponse response = new DetaineeResponse();
         response.setId(detainee.getId());
         response.setDetaineeCode(detainee.getDetaineeCode());
@@ -298,13 +276,32 @@ public class DetaineeServiceImpl implements DetaineeService {
 
         response.setPermanentAddress(detainee.getPermanentAddress());
         response.setPermanentWardId(detainee.getPermanentWardId());
-        response.setPermanentProvinceId(detainee.getPermanentProvinceId());
         response.setTemporaryAddress(detainee.getTemporaryAddress());
         response.setTemporaryWardId(detainee.getTemporaryWardId());
-        response.setTemporaryProvinceId(detainee.getTemporaryProvinceId());
         response.setCurrentAddress(detainee.getCurrentAddress());
         response.setCurrentWardId(detainee.getCurrentWardId());
-        response.setCurrentProvinceId(detainee.getCurrentProvinceId());
+        if(detainee.getPermanentWardId() != null) {
+            Optional<WardEntity> optionalWard = wardRepository.findById(detainee.getPermanentWardId());
+            optionalWard.ifPresent(wardEntity -> {
+                response.setPermanentWardId(wardEntity.getCode());
+                response.setPermanentProvinceId(wardEntity.getProvince().getCode());
+            });
+        }
+        if(detainee.getTemporaryWardId() != null) {
+            Optional<WardEntity> optionalWard = wardRepository.findById(detainee.getTemporaryWardId());
+            optionalWard.ifPresent(wardEntity -> {
+                response.setTemporaryWardId(wardEntity.getCode());
+                response.setTemporaryProvinceId(wardEntity.getProvince().getCode());
+            });
+        }
+        if(detainee.getCurrentWardId() != null) {
+            Optional<WardEntity> optionalWard = wardRepository.findById(detainee.getCurrentWardId());
+            optionalWard.ifPresent(wardEntity -> {
+                response.setCurrentWardId(wardEntity.getCode());
+                response.setCurrentProvinceId(wardEntity.getProvince().getCode());
+            });
+        }
+
         response.setOccupation(detainee.getOccupation());
         response.setFatherName(detainee.getFatherName());
         response.setMotherName(detainee.getMotherName());
@@ -318,6 +315,8 @@ public class DetaineeServiceImpl implements DetaineeService {
         response.setCourtName(detainee.getCourtName());
 
         response.setDetentionCenterId(detainee.getDetentionCenterId());
+        response.setDetentionCenterCode(detentionCenter.getCode());
+        response.setDetentionCenterName(detentionCenter.getName());
 
         response.setCellNumber(detainee.getCellNumber());
         response.setStatus(detainee.getStatus());

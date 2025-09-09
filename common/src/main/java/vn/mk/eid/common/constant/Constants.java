@@ -39,11 +39,15 @@ public class Constants {
     public static class CodePrefix {
         public static final String STAFF_CODE = "CB";
         public static final String DETAINEE_CODE = "DN";
+        public static final String DETENTION_CENTER = "TG";
+        public static final String DEPARTMENT = "PB";
     }
 
     public static class TableName {
         public static final String STAFF = "staff";
         public static final String DETAINEE = "detainees";
+        public static final String DETENTION_CENTER = "detention_centers";
+        public static final String DEPARTMENT = "departments";
     }
 
     public static class RedisKey {

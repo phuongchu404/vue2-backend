@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Common {
-    public static Pair<String, Map<String, Object>> queryWithPageable(
+    public static Pair<String, Map<String, Object>> setParamWithPageable(
             String sql,
             Map<String, Object> params,
             Pageable pageable
@@ -33,6 +33,10 @@ public class Common {
         pagingParams.put("offset", pageable.getOffset());
 
         return Pair.of(sqlBuilder.toString(), pagingParams);
+    }
+
+    public static Pair<String, Map<String, Object>> setParam(String sql, Map<String, Object> params) {
+        return Pair.of(sql, params);
     }
 
     public static String replaceWhere(String sql) {

@@ -12,9 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import vn.mk.eid.common.data.ServiceResult;
-import vn.mk.eid.web.dto.request.DetentionCenterCreateRequest;
 import vn.mk.eid.web.dto.request.DetentionCenterSearchRequest;
-import vn.mk.eid.web.dto.request.DetentionCenterUpdateRequest;
+import vn.mk.eid.web.dto.request.detention_center.DetentionCenterCreateRequest;
+import vn.mk.eid.web.dto.request.detention_center.DetentionCenterUpdateRequest;
+import vn.mk.eid.web.dto.request.detention_center.QueryDetentionCenterRequest;
 import vn.mk.eid.web.service.DetentionCenterService;
 
 import javax.validation.Valid;
@@ -27,13 +28,15 @@ public class DetentionCenterController {
 
     private final DetentionCenterService detentionCenterService;
 
+//    @GetMapping("/search")
+//    @Operation(summary = "search detention center", description = "get all detention center")
+//    public ServiceResult searchDetentionCenters(QueryDetentionCenterRequest request) {
+//        log.info("Search detention centers");
+//        return detentionCenterService.findAllDetentionCenters(request);
+//    }
+
     @GetMapping("/all")
     @Operation(summary = "get all detention center", description = "get all detention center")
-    @Parameters({
-            @Parameter(name = "x-access-token", in = ParameterIn.HEADER, required = true,
-                    description = "Access token",
-                    schema = @Schema(type = "string")),
-    })
     public ServiceResult getAllDetentionCenters() {
         log.info("Fetching all detention centers");
         return detentionCenterService.findAllDetentionCenters();

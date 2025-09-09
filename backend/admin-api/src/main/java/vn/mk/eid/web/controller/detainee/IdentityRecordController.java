@@ -10,14 +10,13 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.mk.eid.common.data.ServiceResult;
-import vn.mk.eid.web.dto.request.IdentityRecordCreateRequest;
-import vn.mk.eid.web.dto.request.IdentityRecordUpdateRequest;
-import vn.mk.eid.web.dto.request.QueryIdentityRecordRequest;
+import vn.mk.eid.web.dto.request.identity_record.IdentityRecordCreateRequest;
+import vn.mk.eid.web.dto.request.identity_record.IdentityRecordUpdateRequest;
+import vn.mk.eid.web.dto.request.identity_record.QueryIdentityRecordRequest;
 import vn.mk.eid.web.service.IdentityRecordService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/identity-record")
@@ -67,5 +66,12 @@ public class IdentityRecordController {
     ) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
         return identityRecordService.getIdentityRecordWithPaging(request, pageable);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete Identity Record", description = "Delete a Identity Record")
+    public ServiceResult deleteIdentityRecord(
+            @Parameter(description = "Identity Record ID") @PathVariable Long id) {
+        return identityRecordService.deleteIdentityRecord(id);
     }
 }

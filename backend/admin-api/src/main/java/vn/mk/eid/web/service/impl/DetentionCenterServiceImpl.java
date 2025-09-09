@@ -2,9 +2,14 @@ package vn.mk.eid.web.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import vn.mk.eid.common.constant.Constants;
+import vn.mk.eid.common.constant.ExceptionConstants;
 import vn.mk.eid.common.dao.entity.DetentionCenterEntity;
 import vn.mk.eid.common.dao.entity.ProvinceEntity;
 import vn.mk.eid.common.dao.entity.WardEntity;
@@ -12,37 +17,39 @@ import vn.mk.eid.common.dao.repository.DetentionCenterRepository;
 import vn.mk.eid.common.dao.repository.ProvinceRepository;
 import vn.mk.eid.common.dao.repository.WardRepository;
 import vn.mk.eid.common.data.ServiceResult;
-import vn.mk.eid.web.dto.request.DetentionCenterCreateRequest;
+import vn.mk.eid.common.util.BeanMapper;
 import vn.mk.eid.web.dto.request.DetentionCenterSearchRequest;
-import vn.mk.eid.web.dto.request.DetentionCenterUpdateRequest;
+import vn.mk.eid.web.dto.request.detention_center.DetentionCenterCreateRequest;
+import vn.mk.eid.web.dto.request.detention_center.DetentionCenterUpdateRequest;
+import vn.mk.eid.web.dto.request.detention_center.QueryDetentionCenterRequest;
 import vn.mk.eid.web.dto.response.DetentionCenterResponse;
+import vn.mk.eid.web.exception.BadRequestException;
+import vn.mk.eid.web.exception.ResourceNotFoundException;
 import vn.mk.eid.web.service.DetentionCenterService;
+import vn.mk.eid.web.service.SequenceService;
+import vn.mk.eid.web.specification.DetentionCenterSpecification;
+import vn.mk.eid.web.utils.StringUtil;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class DetentionCenterServiceImpl implements DetentionCenterService {
-
     private final DetentionCenterRepository detentionCenterRepository;
-    private final WardRepository wardRepository;
+    private final SequenceService sequenceService;
     private final ProvinceRepository provinceRepository;
+    private final WardRepository wardRepository;
 
     @Override
     public ServiceResult createDetentionCenter(DetentionCenterCreateRequest request) {
         DetentionCenterEntity center = new DetentionCenterEntity();
-        center.setName(request.getName());
-        center.setCode(request.getCode());
-        center.setAddress(request.getAddress());
-        center.setWardId(request.getWardId());
-        center.setProvinceId(request.getProvinceId());
-        center.setPhone(request.getPhone());
-        center.setEmail(request.getEmail());
-        center.setDirector(request.getDirector());
-        center.setDeputyDirector(request.getDeputyDirector());
-        center.setEstablishedDate(request.getEstablishedDate());
-        center.setCapacity(request.getCapacity());
+        BeanUtils.copyProperties(request, center);
+        if (StringUtil.isBlank(center.getCode())) {
+            center.setCode(sequenceService.genCode(Constants.CodePrefix.DETENTION_CENTER));
+        }
         center.setCurrentPopulation(request.getCurrentPopulation());
         center.setIsActive(true);
 
@@ -53,36 +60,38 @@ public class DetentionCenterServiceImpl implements DetentionCenterService {
 
     @Override
     public ServiceResult findAllDetentionCenters() {
-        return ServiceResult.ok(detentionCenterRepository.findAll().stream()
-                .map(this::convertToResponse)
-                .collect(Collectors.toList()));
+            List<DetentionCenterEntity> detentions = detentionCenterRepository.findAll();
+            return ServiceResult.ok(detentions
+                    .stream()
+                    .map(this::convertToResponse)
+                    .collect(Collectors.toList()));
     }
 
     @Override
     public ServiceResult findDetentionCenterById(Integer id) {
         DetentionCenterEntity center = detentionCenterRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Detention center not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETENTION_CENTER_NOT_FOUND));
         return ServiceResult.ok(convertToResponse(center));
     }
 
     @Override
     public ServiceResult updateDetentionCenter(Integer id, DetentionCenterUpdateRequest request) {
         DetentionCenterEntity center = detentionCenterRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Detention center not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETENTION_CENTER_NOT_FOUND));
 
-        center.setName(request.getName());
-        center.setCode(request.getCode());
-        center.setAddress(request.getAddress());
-        center.setWardId(request.getWardId());
-        center.setProvinceId(request.getProvinceId());
-        center.setPhone(request.getPhone());
-        center.setEmail(request.getEmail());
-        center.setDirector(request.getDirector());
-        center.setDeputyDirector(request.getDeputyDirector());
-        center.setEstablishedDate(request.getEstablishedDate());
-        center.setCapacity(request.getCapacity());
+        // duplicate code
+        if (Objects.equals(request.getCode(), center.getCode())) {
+            detentionCenterRepository.findByCode(request.getCode())
+                    .ifPresent(detentionCenter -> { throw new BadRequestException(ExceptionConstants.DUPLICATE_DETENTION_CENTER_CODE); });
+        }
         center.setCurrentPopulation(request.getCurrentPopulation());
 
+        // capacity < current_population
+        if (request.getCapacity() != null && request.getCapacity() < center.getCurrentPopulation()) {
+            throw new BadRequestException(ExceptionConstants.DETENTION_CENTER_CAPACITY_INVALID);
+        }
+
+        BeanUtils.copyProperties(request, center);
         center = detentionCenterRepository.save(center);
         log.info("Updated detention center: {}", center.getName());
         return ServiceResult.ok(convertToResponse(center));
@@ -91,7 +100,7 @@ public class DetentionCenterServiceImpl implements DetentionCenterService {
     @Override
     public ServiceResult deleteDetentionCenter(Integer id) {
         DetentionCenterEntity center = detentionCenterRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Detention center not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(ExceptionConstants.DETENTION_CENTER_NOT_FOUND));
 
         detentionCenterRepository.delete(center);
         log.info("Deleted detention center: {}", center.getName());

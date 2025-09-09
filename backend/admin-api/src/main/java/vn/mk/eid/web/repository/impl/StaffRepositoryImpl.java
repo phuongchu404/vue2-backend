@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import vn.mk.eid.Common;
-import vn.mk.eid.web.dto.request.QueryStaffRequest;
+import vn.mk.eid.web.dto.request.staff.QueryStaffRequest;
 import vn.mk.eid.web.dto.response.StaffResponse;
 import vn.mk.eid.web.repository.StaffRepositoryCustom;
 import vn.mk.eid.web.utils.StringUtil;
@@ -96,7 +96,7 @@ public class StaffRepositoryImpl implements StaffRepositoryCustom {
                     " s.created_at     createdAt, " +
                     " s.updated_at     updatedAt ";
 
-            Pair<String, Map<String, Object>> data = Common.queryWithPageable(select + sqlText, params, pageable);
+            Pair<String, Map<String, Object>> data = Common.setParamWithPageable(select + sqlText, params, pageable);
             responses = jdbcTemplate.query(
                     data.getLeft(),
                     data.getRight(),

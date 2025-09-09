@@ -1,18 +1,16 @@
 package vn.mk.eid.web.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
+import vn.mk.eid.common.constant.ExceptionConstants;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.Map;
 
 @Data
 public class FingerprintCardCreateRequest {
-    @NotNull(message = "Person ID is required")
-    private Long detaineeId;
+    @NotNull(message = ExceptionConstants.DETAINEE_CODE_NOT_NULL)
+    private String detaineeCode;
 
 //    @NotNull(message = "Created date is required")
 //    @JsonFormat(pattern = "yyyy-MM-dd")

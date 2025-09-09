@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import vn.mk.eid.Common;
-import vn.mk.eid.web.dto.request.QueryIdentityRecordRequest;
+import vn.mk.eid.web.dto.request.identity_record.QueryIdentityRecordRequest;
 import vn.mk.eid.web.dto.response.IdentityRecordResponse;
 import vn.mk.eid.web.repository.IdentityRecordRepositoryCustom;
 import vn.mk.eid.web.utils.StringUtil;
@@ -43,10 +43,10 @@ public class IdentityRecordRepositoryImpl implements IdentityRecordRepositoryCus
             sql.append(" and d.full_name like :detaineeName ");
             params.put("detaineeName", Common.getValueSelectLike(request.getDetaineeName()));
         }
-        // arrestUnit
-        if (StringUtil.isNotBlank(request.getArrestUnit())) {
-            sql.append(" and ir.arrest_unit like :arrestUnit ");
-            params.put("arrestUnit", Common.getValueSelectLike(request.getArrestUnit()));
+        // detentionCenterId
+        if (request.getDetentionCenterId() != null) {
+            sql.append(" and d.detention_center_id = :detentionCenterId ");
+            params.put("detentionCenterId", request.getDetentionCenterId());
         }
 
         String sqlText = Common.replaceWhere(sql.toString());
@@ -69,7 +69,7 @@ public class IdentityRecordRepositoryImpl implements IdentityRecordRepositoryCus
                     " ir.created_at createdAt, " +
                     " ir.updated_at updatedAt ";
 
-            Pair<String, Map<String, Object>> data = Common.queryWithPageable(select + sqlText, params, pageable);
+            Pair<String, Map<String, Object>> data = Common.setParamWithPageable(select + sqlText, params, pageable);
             responses = jdbcTemplate.query(
                     data.getLeft(),
                     data.getRight(),

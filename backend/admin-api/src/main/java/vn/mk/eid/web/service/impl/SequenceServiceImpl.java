@@ -45,6 +45,10 @@ public class SequenceServiceImpl implements SequenceService {
                 return Constants.TableName.STAFF;
             case Constants.CodePrefix.DETAINEE_CODE:
                 return Constants.TableName.DETAINEE;
+            case Constants.CodePrefix.DETENTION_CENTER:
+                return Constants.TableName.DETENTION_CENTER;
+            case Constants.CodePrefix.DEPARTMENT:
+                return Constants.TableName.DEPARTMENT;
         }
         return "";
     }

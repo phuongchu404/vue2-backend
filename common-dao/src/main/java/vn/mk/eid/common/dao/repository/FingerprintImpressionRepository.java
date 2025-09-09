@@ -23,4 +23,6 @@ public interface FingerprintImpressionRepository extends JpaRepository<Fingerpri
             @Param("fingerprintCardId") Long fingerprintCardId,
             @Param("kind") String kind,
             @Param("finger") String finger);
+
+    void deleteByFingerprintCardId(Long fingerprintCardId);
 }

@@ -22,4 +22,5 @@ public interface FingerprintCardRepository extends JpaRepository<FingerprintCard
 
     Page<FingerprintCardEntity> findByCreatedDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
+    Optional<FingerprintCardEntity> findByPersonIdAndIdIsNot(Long personId, Long fingerprintCardId);
 }

@@ -2,6 +2,7 @@ package vn.mk.eid.common.dao.repository;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import vn.mk.eid.common.dao.entity.CountryEntity;
 
@@ -13,7 +14,7 @@ import java.util.Optional;
  */
 
 @Repository
-public interface CountryRepository extends JpaRepository<CountryEntity, Long> {
+public interface CountryRepository extends JpaRepository<CountryEntity, Long>, JpaSpecificationExecutor<CountryEntity> {
     Optional<CountryEntity> findByAlpha2Code(String alpha2Code);
 
     Optional<CountryEntity> findByAlpha3Code(String alpha3Code);

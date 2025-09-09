@@ -9,7 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import vn.mk.eid.common.data.ServiceResult;
-import vn.mk.eid.web.dto.request.*;
+import vn.mk.eid.web.dto.request.staff.QueryStaffRequest;
+import vn.mk.eid.web.dto.request.staff.StaffCreateRequest;
+import vn.mk.eid.web.dto.request.staff.StaffUpdateRequest;
 import vn.mk.eid.web.service.StaffService;
 
 import javax.validation.Valid;

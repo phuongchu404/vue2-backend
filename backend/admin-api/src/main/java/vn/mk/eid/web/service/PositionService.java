@@ -5,6 +5,5 @@ import vn.mk.eid.web.dto.request.QueryPositionRequest;
 
 public interface PositionService {
     ServiceResult getWithPaging(QueryPositionRequest request);
-
     ServiceResult getAll();
 }

@@ -23,11 +23,13 @@ public class StaffResponse {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
+
     private String placeOfBirth;
     private String idNumber;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate idIssueDate;
+
     private String idIssuePlace;
 
     private Integer ethnicityId;
@@ -63,12 +65,10 @@ public class StaffResponse {
 
     private Integer positionId;
     private String positionName;
-
     private String rank;
 
     private Integer educationLevelId;
     private String educationLevelName;
-
     private String status;
     private Boolean isActive;
 

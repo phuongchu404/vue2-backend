@@ -9,3 +9,4 @@ public class PositionResponse {
     private String code;
     private Integer level;
 }
+

@@ -6,16 +6,17 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class FingerprintCardResponse {
     private Long id;
 
-    private Long personId;
+    private Long detaineeId;
 
-    private String personName;
+    private String detaineeName;
 
-    private String personCode;
+    private String detaineeCode;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate createdDate;
@@ -35,4 +36,6 @@ public class FingerprintCardResponse {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
+
+    private List<PhotoResponse> fingerPrintImages;
 }

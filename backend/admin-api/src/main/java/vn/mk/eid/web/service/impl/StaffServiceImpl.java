@@ -14,9 +14,9 @@ import vn.mk.eid.common.data.Paging;
 import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.web.constant.Gender;
 import vn.mk.eid.web.constant.StaffStatus;
-import vn.mk.eid.web.dto.request.QueryStaffRequest;
-import vn.mk.eid.web.dto.request.StaffCreateRequest;
-import vn.mk.eid.web.dto.request.StaffUpdateRequest;
+import vn.mk.eid.web.dto.request.staff.QueryStaffRequest;
+import vn.mk.eid.web.dto.request.staff.StaffCreateRequest;
+import vn.mk.eid.web.dto.request.staff.StaffUpdateRequest;
 import vn.mk.eid.web.dto.response.StaffResponse;
 import vn.mk.eid.web.exception.BadRequestException;
 import vn.mk.eid.web.exception.ResourceNotFoundException;
@@ -24,10 +24,8 @@ import vn.mk.eid.web.repository.StaffRepositoryCustom;
 import vn.mk.eid.web.service.RedisService;
 import vn.mk.eid.web.service.SequenceService;
 import vn.mk.eid.web.service.StaffService;
-import vn.mk.eid.web.specification.StaffSpecification;
 import vn.mk.eid.web.utils.StringUtil;
 
-import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 

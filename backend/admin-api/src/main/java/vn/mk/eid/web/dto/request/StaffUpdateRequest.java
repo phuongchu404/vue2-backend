@@ -15,6 +15,6 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class StaffUpdateRequest extends StaffCreateRequest {
-    private Boolean isActive;
     private String status;
+    private Boolean isActive;
 }

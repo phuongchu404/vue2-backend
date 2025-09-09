@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import vn.mk.eid.common.constant.ExceptionConstants;
 import vn.mk.eid.common.dao.entity.AnthropometryEntity;
 import vn.mk.eid.common.dao.entity.DetaineeEntity;
 import vn.mk.eid.common.dao.entity.IdentityRecordEntity;
@@ -22,17 +23,17 @@ import vn.mk.eid.common.data.Paging;
 import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.web.constant.PhotoView;
 import vn.mk.eid.web.constant.WebConstants;
-import vn.mk.eid.web.dto.request.IdentityRecordCreateRequest;
-import vn.mk.eid.web.dto.request.IdentityRecordUpdateRequest;
-import vn.mk.eid.web.dto.request.QueryIdentityRecordRequest;
+import vn.mk.eid.web.dto.request.identity_record.IdentityRecordCreateRequest;
+import vn.mk.eid.web.dto.request.identity_record.IdentityRecordUpdateRequest;
+import vn.mk.eid.web.dto.request.identity_record.QueryIdentityRecordRequest;
 import vn.mk.eid.web.dto.response.AnthropometryResponse;
 import vn.mk.eid.web.dto.response.IdentityRecordResponse;
 import vn.mk.eid.web.dto.response.PhotoResponse;
+import vn.mk.eid.web.exception.BadRequestException;
 import vn.mk.eid.web.exception.ResourceNotFoundException;
 import vn.mk.eid.web.repository.IdentityRecordRepositoryCustom;
 import vn.mk.eid.web.service.IdentityRecordService;
 import vn.mk.eid.web.service.MinioService;
-import vn.mk.eid.web.specification.IdentityRecordSpecification;
 import vn.mk.eid.web.utils.FileUtil;
 
 import javax.transaction.Transactional;
@@ -47,13 +48,9 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
 
     private final IdentityRecordRepository identityRecordRepository;
     private final IdentityRecordRepositoryCustom identityRecordRepositoryCustom;
-
     private final DetaineeRepository detaineeRepository;
-
     private final PhotoRepository photoRepository;
-
     private final AnthropometryRepository anthropometryRepository;
-
     private final MinioService minioService;
 
     @Override
@@ -62,45 +59,32 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
             MultipartFile front, MultipartFile leftProfile, MultipartFile rightProfile
     ) {
         DetaineeEntity detainee = detaineeRepository.findByDetaineeCode(request.getDetaineeCode())
-                .orElseThrow(() -> new IllegalArgumentException("Detainee not found with code: " + request.getDetaineeCode()));
+                .orElseThrow(() -> new BadRequestException(String.format(ExceptionConstants.DETAINEE_NOT_FOUND_WITH_CODE, request.getDetaineeCode())));
 
-        //mapper request to IdentityRecordEntity
+        if (!identityRecordRepository.findByDetaineeId(detainee.getId()).isEmpty()) {
+            throw new BadRequestException(ExceptionConstants.DUPLICATE_IDENTITY_RECORD);
+        }
+
         IdentityRecordEntity identityRecord = new IdentityRecordEntity();
         identityRecord.setDetaineeId(detainee.getId());
-        identityRecord.setCreatedPlace(request.getCreatedPlace());
-        identityRecord.setReasonNote(request.getReasonNote());
-        identityRecord.setArrestDate(request.getArrestDate());
-        identityRecord.setArrestUnit(request.getArrestUnit());
-        identityRecord.setFpClassification(request.getFpClassification());
-        identityRecord.setDp(request.getDp());
-        identityRecord.setTw(request.getTw());
-        identityRecord.setAkFileNo(request.getAkFileNo());
-        identityRecord.setNotes(request.getNotes());
-
+        BeanUtils.copyProperties(request, identityRecord);
         identityRecord = identityRecordRepository.save(identityRecord);
 
-        //mapper request to AnthropometryEntity
         AnthropometryEntity anthropometry = new AnthropometryEntity();
         anthropometry.setIdentityRecordId(identityRecord.getId());
-        anthropometry.setFaceShape(request.getFaceShape());
-        anthropometry.setHeightCm(request.getHeightCm());
-        anthropometry.setNoseBridge(request.getNoseBridge());
-        anthropometry.setDistinctiveMarks(request.getDistinctiveMarks());
-        anthropometry.setEarLowerFold(request.getEarLowerFold());
-        anthropometry.setEarLobe(request.getEarLobe());
-
+        BeanUtils.copyProperties(request, anthropometry);
         anthropometry = anthropometryRepository.save(anthropometry);
 
         Map<Integer, MultipartFile> fileMap = createFileMap(front, leftProfile, rightProfile);
         List<PhotoResponse> photoResponses = fileUploads(detainee.getDetentionCenterId(), identityRecord.getId(),
                 detainee.getDetaineeCode(), detainee.getIdNumber(), fileMap, new HashMap<>());
 
-        //response
+        // response
         IdentityRecordResponse response = convertToResponse(identityRecord, detainee);
         response.setAnthropometry(convertAnthropometryToResponse(anthropometry));
         response.setPhoto(photoResponses);
 
-        log.info("Created identity record for detainee: {}", detainee.getDetaineeCode());
+        log.info("[IDENTITY_RECORD] Created for detainee: {}", detainee.getDetaineeCode());
         return ServiceResult.ok(response);
     }
 
@@ -121,8 +105,10 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
 
     @Override
     public ServiceResult updateIdentityRecord(Long id, IdentityRecordUpdateRequest request, MultipartFile front, MultipartFile leftProfile, MultipartFile rightProfile) {
-        IdentityRecordEntity identityRecord = identityRecordRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Identity record not found"));
-        DetaineeEntity detainee = detaineeRepository.findById(identityRecord.getDetaineeId()).orElseThrow(() -> new ResourceNotFoundException("Detainee not found"));
+        IdentityRecordEntity identityRecord = identityRecordRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.IDENTITY_RECORD_NOT_FOUND));
+        DetaineeEntity detainee = detaineeRepository.findById(identityRecord.getDetaineeId())
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETAINEE_NOT_FOUND));
 
         BeanUtils.copyProperties(request, identityRecord);
         identityRecordRepository.save(identityRecord);
@@ -143,7 +129,7 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
                 detainee.getDetaineeCode(), detainee.getIdNumber(), fileMap, photoMap);
         response.setPhoto(photoResponses);
 
-        log.info("Updated identity record for detainee: {}", detainee.getDetaineeCode());
+        log.info("[IDENTITY_RECORD] Updated for detainee: {}", detainee.getDetaineeCode());
         return ServiceResult.ok(response);
     }
 
@@ -161,7 +147,7 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
     @Override
     public ServiceResult getIdentityRecord(Long id) {
         IdentityRecordEntity identityRecord = identityRecordRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Identity record not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.IDENTITY_RECORD_NOT_FOUND));
 
         DetaineeEntity detainee = detaineeRepository.findById(identityRecord.getDetaineeId())
                 .orElseThrow(() -> new IllegalArgumentException("Detainee not found with id: " + identityRecord.getDetaineeId()));
@@ -183,12 +169,13 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
     @Override
     public ServiceResult getIdentityRecordByDetaineeId(Long detaineeId) {
         DetaineeEntity detainee = detaineeRepository.findById(detaineeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Detainee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETAINEE_NOT_FOUND));
 
         List<IdentityRecordEntity> records = identityRecordRepository.findByDetaineeId(detainee.getId());
-        List<IdentityRecordResponse> recordResponses = records.stream().map(record ->{
-            return convertToResponse(record, detainee);
-        }).collect(Collectors.toList());
+        List<IdentityRecordResponse> recordResponses = records
+                .stream()
+                .map(record -> convertToResponse(record, detainee))
+                .collect(Collectors.toList());
 
         return ServiceResult.ok(recordResponses);
     }
@@ -196,7 +183,7 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
     @Override
     public ServiceResult getIdentityRecordWithPaging(QueryIdentityRecordRequest request, Pageable pageable) {
         Page<IdentityRecordResponse> page = identityRecordRepositoryCustom.getWithPaging(request, pageable);
-        return ServiceResult.ok(Paging.<IdentityRecordResponse>builder().content(page.getContent()).totalElements(page.getTotalElements()).build());
+        return ServiceResult.ok(page);
     }
 
     private List<PhotoResponse> fileUploads(Integer detentionCenterId, Long identityRecordId, String detaineeCode, String idNumber, Map<Integer, MultipartFile> fileMap, Map<String, PhotoEntity> photoMap) {
@@ -250,51 +237,31 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
 
         photo = photoRepository.save(photo);
         log.info("Uploaded photo for identity record: {}, view: {}", identityRecordId, viewCode);
-//
         return convertPhotoToResponse(photo, null);
     }
 
     @Override
-    public ServiceResult getPhotos(Long identityRecordId) {
-        IdentityRecordEntity identityRecord = identityRecordRepository.findById(identityRecordId)
-                .orElseThrow(() -> new ResourceNotFoundException("Identity record not found"));
+    public ServiceResult deleteIdentityRecord(Long id) {
+        IdentityRecordEntity identityRecord = identityRecordRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.IDENTITY_RECORD_NOT_FOUND));
 
-        List<PhotoEntity> photos = photoRepository.findByIdentityRecordId(identityRecord.getId());
-        return ServiceResult.ok(photos.stream().map(item -> convertPhotoToResponse(item, null)).collect(Collectors.toList()));
+        identityRecordRepository.delete(identityRecord);
+        log.info("[IDENTITY_RECORD] deleted {}", identityRecord.getId());
+        return ServiceResult.ok();
     }
 
     private IdentityRecordResponse convertToResponse(IdentityRecordEntity record, DetaineeEntity detainee) {
         IdentityRecordResponse response = new IdentityRecordResponse();
-        response.setId(record.getId());
-        response.setDetaineeId(record.getDetaineeId());
         response.setDetaineeName(detainee.getFullName());
         response.setDetaineeCode(detainee.getDetaineeCode());
-        response.setCreatedPlace(record.getCreatedPlace());
-        response.setReasonNote(record.getReasonNote());
-        response.setArrestDate(record.getArrestDate());
-        response.setArrestUnit(record.getArrestUnit());
-        response.setFpClassification(record.getFpClassification());
-        response.setDp(record.getDp());
-        response.setTw(record.getTw());
-        response.setAkFileNo(record.getAkFileNo());
-        response.setNotes(record.getNotes());
-        response.setCreatedAt(record.getCreatedAt());
-        response.setUpdatedAt(record.getUpdatedAt());
-
+        BeanUtils.copyProperties(record, response);
 
         return response;
     }
 
     private PhotoResponse convertPhotoToResponse(PhotoEntity photo, @Nullable Boolean isGenLink) {
         PhotoResponse response = new PhotoResponse();
-        response.setId(photo.getId());
-        response.setIdentityRecordId(photo.getIdentityRecordId());
-        response.setView(photo.getView());
-        response.setBucket(photo.getBucket());
-        response.setObjectUrl(photo.getObjectUrl());
-        response.setMimeType(photo.getMimeType());
-        response.setSizeBytes(photo.getSizeBytes());
-        response.setCreatedAt(photo.getCreatedAt());
+        BeanUtils.copyProperties(photo, response);
 
         if (Objects.equals(isGenLink, Boolean.TRUE)) {
             response.setLinkUrl(minioService.getFileUrl(photo.getObjectUrl(), photo.getBucket(), MinioService.DownloadOption.builder().isPublic(false).build()));
@@ -304,15 +271,7 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
 
     private AnthropometryResponse convertAnthropometryToResponse(AnthropometryEntity anthropometry) {
         AnthropometryResponse response = new AnthropometryResponse();
-        response.setIdentityRecordId(anthropometry.getIdentityRecordId());
-        response.setFaceShape(anthropometry.getFaceShape());
-        response.setHeightCm(anthropometry.getHeightCm());
-        response.setNoseBridge(anthropometry.getNoseBridge());
-        response.setDistinctiveMarks(anthropometry.getDistinctiveMarks());
-        response.setEarLowerFold(anthropometry.getEarLowerFold());
-        response.setEarLobe(anthropometry.getEarLobe());
-        response.setCreatedAt(anthropometry.getCreatedAt());
-        response.setUpdatedAt(anthropometry.getUpdatedAt());
+        BeanUtils.copyProperties(anthropometry, response);
         return response;
     }
 }

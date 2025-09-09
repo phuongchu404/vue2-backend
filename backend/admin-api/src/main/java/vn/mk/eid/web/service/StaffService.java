@@ -2,9 +2,9 @@ package vn.mk.eid.web.service;
 
 import org.springframework.data.domain.Pageable;
 import vn.mk.eid.common.data.ServiceResult;
-import vn.mk.eid.web.dto.request.QueryStaffRequest;
-import vn.mk.eid.web.dto.request.StaffCreateRequest;
-import vn.mk.eid.web.dto.request.StaffUpdateRequest;
+import vn.mk.eid.web.dto.request.staff.QueryStaffRequest;
+import vn.mk.eid.web.dto.request.staff.StaffCreateRequest;
+import vn.mk.eid.web.dto.request.staff.StaffUpdateRequest;
 
 public interface StaffService {
     ServiceResult getStaffWithPaging(QueryStaffRequest request, Pageable pageable);

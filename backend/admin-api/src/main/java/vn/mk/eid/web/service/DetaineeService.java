@@ -2,10 +2,9 @@ package vn.mk.eid.web.service;
 
 import org.springframework.data.domain.Pageable;
 import vn.mk.eid.common.data.ServiceResult;
-import vn.mk.eid.web.dto.request.DetaineeCreateRequest;
-import vn.mk.eid.web.dto.request.DetaineeUpdateRequest;
-
-import java.util.Date;
+import vn.mk.eid.web.dto.request.detainee.DetaineeCreateRequest;
+import vn.mk.eid.web.dto.request.detainee.DetaineeUpdateRequest;
+import vn.mk.eid.web.dto.request.detainee.QueryDetaineeRequest;
 
 public interface DetaineeService {
     ServiceResult createDetainee(DetaineeCreateRequest request);
@@ -16,17 +15,10 @@ public interface DetaineeService {
 
     ServiceResult getDetaineeByCode(String code);
 
-    ServiceResult getAllDetainees(Pageable pageable);
-
-    ServiceResult searchDetainees(String keyword, Pageable pageable);
-
-    ServiceResult getDetaineeByStatus(String status, Pageable pageable);
-
-    ServiceResult getDetaineeByCenter(Integer centerId, Pageable pageable);
+    ServiceResult getWithPaging(QueryDetaineeRequest request, Pageable pageable);
 
 //    ServiceResult releaseDetainee(Long id, Date releaseDate, String reason);
 
     ServiceResult deleteDetainee(Long id);
-
 
 }

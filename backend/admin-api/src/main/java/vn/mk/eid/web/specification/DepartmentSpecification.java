@@ -2,7 +2,7 @@ package vn.mk.eid.web.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.mk.eid.common.dao.entity.DepartmentEntity;
-import vn.mk.eid.web.dto.request.QueryDepartmentRequest;
+import vn.mk.eid.web.dto.request.department.QueryDepartmentRequest;
 import vn.mk.eid.web.utils.StringUtil;
 
 import javax.persistence.criteria.Predicate;

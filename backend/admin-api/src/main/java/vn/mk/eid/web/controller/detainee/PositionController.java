@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.mk.eid.common.data.ServiceResult;
-import vn.mk.eid.web.dto.request.QueryDepartmentRequest;
 import vn.mk.eid.web.dto.request.QueryPositionRequest;
-import vn.mk.eid.web.service.DepartmentService;
 import vn.mk.eid.web.service.PositionService;
 
 /**
@@ -27,6 +25,7 @@ public class PositionController {
     @GetMapping("/all")
     @Operation(summary = "Get all position", description = "Get all position")
     public ServiceResult getWithPaging(QueryPositionRequest request) {
+
         return positionService.getAll();
     }
 }
