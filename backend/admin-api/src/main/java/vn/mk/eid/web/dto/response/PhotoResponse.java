@@ -13,7 +13,7 @@ public class PhotoResponse {
     private Long identityRecordId;
     private String view;
     private String bucket;
-    private String objectKey;
+//    private String objectKey;
     private String objectUrl;
     private String mimeType;
     private Long sizeBytes;

@@ -121,7 +121,7 @@ public class DetaineeRepositoryImpl implements DetaineeRepositoryCustom {
                     " d.status, " +
                     " d.notes, " +
                     " d.created_at createdAt, " +
-                    " d.updated_at updatedAt ";;
+                    " d.updated_at updatedAt ";
 
             Pair<String, Map<String, Object>> data = Common.setParamWithPageable(select + sqlText, params, pageable);
             responses = jdbcTemplate.query(

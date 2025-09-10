@@ -61,18 +61,18 @@ public class MinioServiceImpl implements MinioService {
 
     @SneakyThrows
     public String uploadFile(MultipartFile file, String dir, UploadOption option) {
-        return uploadFile(file, null, dir, option).getLeft();
+        return uploadFile(file, null, dir, option);
     }
 
     @SneakyThrows
     @Override
-    public Pair<String, String> uploadFile(MultipartFile file, String name, String dir) {
+    public String uploadFile(MultipartFile file, String name, String dir) {
         return uploadFile(file, name, dir, UploadOption.builder().isPublic(false).build());
     }
 
     @Override
     @SneakyThrows
-    public Pair<String, String> uploadFile(MultipartFile file, String name, String dir, UploadOption option) {
+    public String uploadFile(MultipartFile file, String name, String dir, UploadOption option) {
         if (name != null) name = renameFile(file.getOriginalFilename(), name);
         return uploadFile(file.getInputStream(), name, dir, option);
     }
@@ -80,16 +80,16 @@ public class MinioServiceImpl implements MinioService {
     @SneakyThrows
     @Override
     public String uploadFileJpg(MultipartFile file, String name, String dir, UploadOption option) {
-        return uploadFile(file.getInputStream(), name, dir, option).getLeft();
+        return uploadFile(file.getInputStream(), name, dir, option);
     }
 
     @Override
     public String uploadFile(InputStream content, String name, String dir, UploadOption option, boolean rename) {
         if (rename) name = renameFile(name);
-        return uploadFile(content, name, dir, option).getLeft();
+        return uploadFile(content, name, dir, option);
     }
 
-    public Pair<String, String> uploadFile(InputStream content, String fileName, String dir, UploadOption option) {
+    public String uploadFile(InputStream content, String fileName, String dir, UploadOption option) {
         try {
             String filePath = StringUtil.isBlank(dir) ? fileName : dir.concat(WebConstants.CommonSymbol.FORWARD_SLASH).concat(fileName);
             minioClient.putObject(PutObjectArgs.builder()
@@ -98,7 +98,7 @@ public class MinioServiceImpl implements MinioService {
                     .stream(content, content.available(), 0L)
                     .build());
             log.info(UPLOAD_SUCCESS);
-            return Pair.of(fileName, filePath);
+            return fileName;
         } catch (Exception e) {
             log.info(UPLOAD_FAIL);
             log.error(e.getMessage(), e);
@@ -108,12 +108,12 @@ public class MinioServiceImpl implements MinioService {
 
     public String uploadFile(InputStream content, String name, String dir) {
         name = renameFile(name);
-        return uploadFile(content, name, dir, UploadOption.builder().isPublic(true).build()).getLeft();
+        return uploadFile(content, name, dir, UploadOption.builder().isPublic(true).build());
     }
 
     public String uploadFileNew(InputStream content, String fileName, String id, String dir) {
         fileName = renameFileNew(fileName, id);
-        return uploadFile(content, fileName, dir, UploadOption.builder().isPublic(true).build()).getLeft();
+        return uploadFile(content, fileName, dir, UploadOption.builder().isPublic(true).build());
     }
 
     public String uploadFileTemplate(InputStream content, String name) {

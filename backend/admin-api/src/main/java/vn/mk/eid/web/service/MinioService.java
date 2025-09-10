@@ -50,9 +50,9 @@ public interface MinioService {
 
     byte[] downloadFile(String filePath);
 
-    Pair<String, String> uploadFile(MultipartFile file, String name, String dir);
+    String uploadFile(MultipartFile file, String name, String dir);
 
-    Pair<String, String> uploadFile(MultipartFile file, String name, String dir, UploadOption option);
+    String uploadFile(MultipartFile file, String name, String dir, UploadOption option);
 
     String uploadFileJpg(MultipartFile file, String name, String dir, UploadOption option);
 

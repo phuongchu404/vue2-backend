@@ -8,5 +8,6 @@ import lombok.Setter;
 public class QueryIdentityRecordRequest {
     private String detaineeCode;
     private String detaineeName;
-    private Integer detentionCenterId;
+    private String arrestUnit;
+//    private Integer detentionCenterId;
 }

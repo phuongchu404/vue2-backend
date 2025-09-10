@@ -186,7 +186,7 @@ create table country
     country_name    varchar(100),
     alpha_2_code    varchar(2),
     alpha_3_code    varchar(3),
-    "numeric _code" varchar(5)
+    "numeric_code" varchar(5)
 );
 
 alter table country

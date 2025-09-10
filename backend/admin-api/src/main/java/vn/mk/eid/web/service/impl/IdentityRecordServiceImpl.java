@@ -82,7 +82,7 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
         // response
         IdentityRecordResponse response = convertToResponse(identityRecord, detainee);
         response.setAnthropometry(convertAnthropometryToResponse(anthropometry));
-        response.setPhoto(photoResponses);
+        response.setPhotos(photoResponses);
 
         log.info("[IDENTITY_RECORD] Created for detainee: {}", detainee.getDetaineeCode());
         return ServiceResult.ok(response);
@@ -127,7 +127,7 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
 
         List<PhotoResponse> photoResponses = fileUploads(detainee.getDetentionCenterId(), identityRecord.getId(),
                 detainee.getDetaineeCode(), detainee.getIdNumber(), fileMap, photoMap);
-        response.setPhoto(photoResponses);
+        response.setPhotos(photoResponses);
 
         log.info("[IDENTITY_RECORD] Updated for detainee: {}", detainee.getDetaineeCode());
         return ServiceResult.ok(response);
@@ -161,7 +161,7 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
         for (PhotoEntity photo : photos) {
             photoResponses.add(convertPhotoToResponse(photo, Boolean.TRUE));
         }
-        response.setPhoto(photoResponses);
+        response.setPhotos(photoResponses);
 
         return ServiceResult.ok(response);
     }
@@ -183,6 +183,20 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
     @Override
     public ServiceResult getIdentityRecordWithPaging(QueryIdentityRecordRequest request, Pageable pageable) {
         Page<IdentityRecordResponse> page = identityRecordRepositoryCustom.getWithPaging(request, pageable);
+        List<IdentityRecordResponse> list = page.getContent();
+        if(!list.isEmpty()){
+            for(IdentityRecordResponse response : list){
+                Optional<AnthropometryEntity> optionalAnthropometry = anthropometryRepository.findByIdentityRecordId(response.getId());
+                optionalAnthropometry.ifPresent(anthropometryEntity -> response.setAnthropometry(convertAnthropometryToResponse(anthropometryEntity)));
+
+                List<PhotoEntity> photos = photoRepository.findByIdentityRecordId(response.getId());
+                List<PhotoResponse> photoResponses = new ArrayList<>();
+                for (PhotoEntity photo : photos) {
+                    photoResponses.add(convertPhotoToResponse(photo, Boolean.TRUE));
+                }
+                response.setPhotos(photoResponses);
+            }
+        }
         return ServiceResult.ok(page);
     }
 
@@ -220,7 +234,7 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
         String dir = detentionCenterId + WebConstants.CommonSymbol.FORWARD_SLASH + WebConstants.bucketMinio.DETAINEE + WebConstants.CommonSymbol.FORWARD_SLASH +
                 detaineeCode + WebConstants.CommonSymbol.DASH + idNumber  + WebConstants.CommonSymbol.FORWARD_SLASH + WebConstants.bucketMinio.IDENTITY;
         log.info("Uploading photo to directory: {}", dir);
-        Pair<String, String> uploadData = minioService.uploadFile(file, fileName, dir);
+        String uploadData = minioService.uploadFile(file, fileName, dir);
 //        String objectUrl = minioService.getFileUrl(objectKey);
 
 //         Save photo record
@@ -230,8 +244,8 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
         photo.setIdentityRecordId(identityRecordId);
         photo.setView(viewCode);
         photo.setBucket(dir);
-        photo.setObjectKey(uploadData.getRight());
-        photo.setObjectUrl(uploadData.getLeft());
+//        photo.setObjectKey(uploadData.getRight());
+        photo.setObjectUrl(uploadData);
         photo.setMimeType(file.getContentType());
         photo.setSizeBytes(file.getSize());
 
@@ -245,7 +259,15 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
         IdentityRecordEntity identityRecord = identityRecordRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.IDENTITY_RECORD_NOT_FOUND));
 
+        Long identityRecordId = identityRecord.getId();
+        anthropometryRepository.deleteByIdentityRecordId(identityRecordId);
+        List<PhotoEntity> photos = photoRepository.findByIdentityRecordId(identityRecordId);
+        for (PhotoEntity photo : photos) {
+            minioService.removeFile(photo.getObjectUrl(),photo.getBucket(), MinioService.DownloadOption.builder().isPublic(false).build());
+            photoRepository.delete(photo);
+        }
         identityRecordRepository.delete(identityRecord);
+
         log.info("[IDENTITY_RECORD] deleted {}", identityRecord.getId());
         return ServiceResult.ok();
     }

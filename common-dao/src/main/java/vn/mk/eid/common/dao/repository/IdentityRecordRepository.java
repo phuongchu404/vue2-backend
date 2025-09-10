@@ -19,7 +19,7 @@ public interface IdentityRecordRepository extends JpaRepository<IdentityRecordEn
     @Query(value = "select i from IdentityRecordEntity i " +
             "left join DetaineeEntity d on i.detaineeId = d.id " +
             "where d.id = :detaineeId")
-    List<IdentityRecordEntity> findByDetaineeId(Long detaineeId);
+    List<IdentityRecordEntity> findByDetaineeId(@Param("detaineeId") Long detaineeId);
 
     Page<IdentityRecordEntity> findByArrestDateBetween(LocalDate arrestDateAfter, LocalDate arrestDateBefore, Pageable pageable);
 

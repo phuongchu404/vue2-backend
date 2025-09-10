@@ -26,6 +26,7 @@ import vn.mk.eid.web.service.DetaineeService;
 import vn.mk.eid.web.service.SequenceService;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -248,6 +249,12 @@ public class DetaineeServiceImpl implements DetaineeService {
         return ServiceResult.ok();
     }
 
+    @Override
+    public ServiceResult getAllNoPaging() {
+        List<DetaineeEntity> detainee = detaineeRepository.findAll();
+
+        return ServiceResult.ok(detainee.stream().map(this::convertToResponse));
+    }
 
 
     private String generateDetaineeCode() {
@@ -324,6 +331,15 @@ public class DetaineeServiceImpl implements DetaineeService {
         response.setCreatedAt(detainee.getCreatedAt());
         response.setUpdatedAt(detainee.getUpdatedAt());
 
+        return response;
+    }
+
+    private DetaineeResponse convertToResponse(DetaineeEntity detainee) {
+        DetaineeResponse response = new DetaineeResponse();
+        response.setId(detainee.getId());
+        response.setDetaineeCode(detainee.getDetaineeCode());
+        response.setProfileNumber(detainee.getProfileNumber());
+        response.setFullName(detainee.getFullName());
         return response;
     }
     //    private void createDetentionHistory(Detainee detainee, DetentionCenter center,

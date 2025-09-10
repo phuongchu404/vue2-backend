@@ -4,14 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import vn.mk.eid.common.dao.entity.DepartmentEntity;
 import vn.mk.eid.common.dao.entity.PositionEntity;
 import vn.mk.eid.common.dao.repository.PositionRepository;
 import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.web.dto.request.QueryPositionRequest;
 import vn.mk.eid.web.dto.response.PositionResponse;
 import vn.mk.eid.web.service.PositionService;
-import vn.mk.eid.web.specification.DepartmentSpecification;
 import vn.mk.eid.web.specification.PositionSpecification;
 
 import javax.transaction.Transactional;

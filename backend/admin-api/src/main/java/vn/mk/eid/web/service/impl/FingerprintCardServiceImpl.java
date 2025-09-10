@@ -99,7 +99,7 @@ public class FingerprintCardServiceImpl implements FingerprintCardService {
                     String dir = detainee.getDetentionCenterId() + WebConstants.CommonSymbol.FORWARD_SLASH + WebConstants.bucketMinio.DETAINEE + WebConstants.CommonSymbol.FORWARD_SLASH +
                             detainee.getDetaineeCode() + WebConstants.CommonSymbol.DASH + detainee.getIdNumber() + WebConstants.CommonSymbol.FORWARD_SLASH + WebConstants.bucketMinio.IDENTITY;
                     log.info("Uploading fingerprint to directory: {}", dir);
-                    Pair<String, String> uploadData = minioService.uploadFile(imageFile, fileName, dir);
+                    String uploadData = minioService.uploadFile(imageFile, fileName, dir);
 
                     FingerprintImpressionEntity impression = photoMap.get(imageKey);
                     if (impression == null) {
@@ -109,7 +109,7 @@ public class FingerprintCardServiceImpl implements FingerprintCardService {
                     impression.setFinger(imageKey);
                     impression.setKind(getKindByFingerType(imageKey));
                     impression.setBucket(dir);
-                    impression.setObjectUrl(uploadData.getLeft());
+                    impression.setObjectUrl(uploadData);
                     impression.setImageKey(fileName);
 
                     impressions.add(impression);

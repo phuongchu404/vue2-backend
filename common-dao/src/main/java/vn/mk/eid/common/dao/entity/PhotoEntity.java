@@ -34,10 +34,10 @@ public class PhotoEntity {
     @Type(type = "org.hibernate.type.TextType")
     private String bucket; // Ten bucket luu tru anh
 
-    @NotNull
-    @Column(name = "object_key", nullable = false)
-    @Type(type = "org.hibernate.type.TextType")
-    private String objectKey; // Khoa cua anh luu tru tren minio
+//    @NotNull
+//    @Column(name = "object_key", nullable = false)
+//    @Type(type = "org.hibernate.type.TextType")
+//    private String objectKey; // Khoa cua anh luu tru tren minio
 
     @NotNull
     @Column(name = "object_url", nullable = false)

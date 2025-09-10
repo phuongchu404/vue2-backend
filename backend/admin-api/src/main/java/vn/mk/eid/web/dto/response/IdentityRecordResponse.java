@@ -36,5 +36,5 @@ public class IdentityRecordResponse {
 
     private AnthropometryResponse anthropometry; // Thong tin ve nhan dang hinh the
 
-    private List<PhotoResponse> photo; // Anh chan dung
+    private List<PhotoResponse> photos; // Anh chan dung
 }

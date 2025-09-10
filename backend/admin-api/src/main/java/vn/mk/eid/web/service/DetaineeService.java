@@ -21,4 +21,6 @@ public interface DetaineeService {
 
     ServiceResult deleteDetainee(Long id);
 
+    ServiceResult getAllNoPaging();
+
 }

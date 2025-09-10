@@ -62,7 +62,7 @@ public class IdentityRecordController {
     public ServiceResult getIdentityRecordWithPaging(
         QueryIdentityRecordRequest request,
         @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "1") int pageNo,
-        @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int pageSize
+        @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int pageSize
     ) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
         return identityRecordService.getIdentityRecordWithPaging(request, pageable);

@@ -110,4 +110,10 @@ public class DetaineeController {
        return detaineeService.deleteDetainee(id);
     }
 
+    @GetMapping("/all")
+    @Operation(summary = "Get all detainees without paging", description = "Retrieve list of all detainees without paging")
+    public ServiceResult getAllDetaineesNoPaging() {
+        return detaineeService.getAllNoPaging();
+    }
+
 }

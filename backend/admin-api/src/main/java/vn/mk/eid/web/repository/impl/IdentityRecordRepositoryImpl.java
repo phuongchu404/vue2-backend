@@ -43,10 +43,10 @@ public class IdentityRecordRepositoryImpl implements IdentityRecordRepositoryCus
             sql.append(" and d.full_name like :detaineeName ");
             params.put("detaineeName", Common.getValueSelectLike(request.getDetaineeName()));
         }
-        // detentionCenterId
-        if (request.getDetentionCenterId() != null) {
-            sql.append(" and d.detention_center_id = :detentionCenterId ");
-            params.put("detentionCenterId", request.getDetentionCenterId());
+        // arrestUnit
+        if (request.getArrestUnit() != null) {
+            sql.append(" and ir.arrest_unit = :arrestUnit ");
+            params.put("arrestUnit", request.getArrestUnit());
         }
 
         String sqlText = Common.replaceWhere(sql.toString());
