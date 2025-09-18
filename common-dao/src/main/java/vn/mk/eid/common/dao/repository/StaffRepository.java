@@ -5,10 +5,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.mk.eid.common.dao.entity.StaffEntity;
 
 import javax.validation.constraints.Size;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,4 +44,27 @@ public interface StaffRepository extends JpaRepository<StaffEntity, Integer>, Jp
     List<StaffEntity> findByIsActiveTrue();
 
     Long countByDetentionCenterIdAndIsActive(Integer detentionCenterId, Boolean isActive);
+
+    @Query(value = "select count(id) " +
+            " from staff " +
+            " where is_active = true and (?1 is null OR created_at < DATE_TRUNC('month', CURRENT_DATE))", nativeQuery = true)
+    Optional<Integer> getTotalStaff(Boolean isPreviousMonth);
+
+    @Query(value = "select s from StaffEntity s where s.isActive = true order by s.updatedAt desc")
+    List<StaffEntity> findTop3ByOrderByUpdateAtDesc(Pageable pageable);
+
+    @Query("SELECT COUNT(s) FROM StaffEntity s WHERE s.isActive = true")
+    Long countByIsActiveTrue();
+
+
+    @Query("SELECT COUNT(s) FROM StaffEntity s WHERE s.status = 'ACTIVE' AND s.isActive = true")
+    Long countActiveStaff();
+
+    @Query("SELECT COUNT(s) FROM StaffEntity s WHERE DATE(s.createdAt) BETWEEN :startDate AND :endDate")
+    Long countStaffInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT d.name, COUNT(s), SUM(CASE WHEN (s.status = 'ACTIVE' and s.isActive = true) THEN 1 ELSE 0 END) " +
+            "FROM StaffEntity s JOIN DepartmentEntity d ON s.departmentId = d.id " +
+            "GROUP BY d.id, d.name")
+    List<Object[]> getStaffByDepartmentStatistics();
 }

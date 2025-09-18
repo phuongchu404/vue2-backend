@@ -10,7 +10,7 @@ import lombok.Data;
 public class AddPermissionRequest {
     private String tag;
     private String type;
-    private boolean whiteList;
+    private Boolean isWhiteList;
     private String pattern;
     private String method;
 }

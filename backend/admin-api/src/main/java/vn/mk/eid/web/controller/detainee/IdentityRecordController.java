@@ -74,4 +74,9 @@ public class IdentityRecordController {
             @Parameter(description = "Identity Record ID") @PathVariable Long id) {
         return identityRecordService.deleteIdentityRecord(id);
     }
+
+    @GetMapping("/count")
+    public ServiceResult countIdentityRecords() {
+        return identityRecordService.countIdentityRecords();
+    }
 }

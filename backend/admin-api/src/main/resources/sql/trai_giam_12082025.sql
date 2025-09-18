@@ -355,9 +355,10 @@ CREATE TABLE detention_history (
    start_date DATE NOT NULL,
    end_date DATE,
    reason TEXT, -- Lý do giam giữ
+   type VARCHAR(20),
    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-   UNIQUE(detainee_id, start_date) -- Mỗi phạm nhân chỉ có một lịch sử giam giữ tại một thời điểm
+   UNIQUE(detainee_id, start_date, type) -- Mỗi phạm nhân chỉ có một lịch sử giam giữ tại một thời điểm
 );
 
 -- Bảng lịch sử chuyển trại
@@ -372,4 +373,101 @@ CREATE TABLE transfer_history (
     updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(detainee_id, transfer_date) -- Mỗi phạm nhân chỉ có một lịch sử chuyển trại tại một thời điểm
 );
+
+-- tổng hợp hàng ngày
+CREATE TABLE daily_statistics_fact (
+                                       id BIGSERIAL PRIMARY KEY,
+                                       report_date DATE NOT NULL,
+
+    -- Detainee metrics
+                                       total_detainees INT DEFAULT 0,
+                                       new_detainees INT DEFAULT 0,
+                                       released_detainees INT DEFAULT 0,
+                                       transferred_detainees INT DEFAULT 0,
+                                       active_detainees INT DEFAULT 0,
+
+    -- Staff metrics
+                                       total_staff INT DEFAULT 0,
+                                       new_staff INT DEFAULT 0,
+                                       terminated_staff INT DEFAULT 0,
+                                       active_staff INT DEFAULT 0,
+
+    -- Identity records metrics
+                                       total_identity_records INT DEFAULT 0,
+                                       new_identity_records INT DEFAULT 0,
+                                       completed_identity_records INT DEFAULT 0,
+                                       pending_identity_records INT DEFAULT 0,
+
+    -- Fingerprint cards metrics
+                                       total_fingerprint_cards INT DEFAULT 0,
+                                       new_fingerprint_cards INT DEFAULT 0,
+                                       completed_fingerprint_cards INT DEFAULT 0,
+                                       in_progress_fingerprint_cards INT DEFAULT 0,
+
+    -- Timestamps
+                                       created_date TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                                       updated_date TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+                                       CONSTRAINT unique_date UNIQUE (report_date)
+);
+
+CREATE INDEX idx_report_date ON daily_statistics_fact(report_date);
+
+-- Tổng hợp theo tháng
+CREATE TABLE monthly_statistics_fact (
+                                         id BIGSERIAL PRIMARY KEY,
+
+                                         year INT NOT NULL,
+                                         month INT NOT NULL,
+
+    -- Detainee metrics
+                                         total_detainees INT DEFAULT 0,
+                                         new_detainees INT DEFAULT 0,
+                                         released_detainees INT DEFAULT 0,
+                                         transferred_detainees INT DEFAULT 0,
+                                         avg_daily_detainees DECIMAL(10,2) DEFAULT 0,
+
+    -- Staff metrics
+                                         total_staff INT DEFAULT 0,
+                                         new_staff INT DEFAULT 0,
+                                         terminated_staff INT DEFAULT 0,
+                                         avg_daily_staff DECIMAL(10,2) DEFAULT 0,
+
+    -- Identity records metrics
+                                         new_identity_records INT DEFAULT 0,
+                                         completed_identity_records INT DEFAULT 0,
+                                         completion_rate DECIMAL(5,2) DEFAULT 0,
+
+    -- Fingerprint cards metrics
+                                         new_fingerprint_cards INT DEFAULT 0,
+                                         completed_fingerprint_cards INT DEFAULT 0,
+                                         avg_completion_percentage DECIMAL(5,2) DEFAULT 0,
+
+                                         created_date TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                                         updated_date TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+                                         CONSTRAINT unique_year_month UNIQUE (year, month)
+);
+
+CREATE INDEX idx_year_month ON monthly_statistics_fact(year, month);
+
+-- Tổng hợp theo đơn vị/phòng ban
+CREATE TABLE department_statistics_fact (
+                                            id BIGSERIAL PRIMARY KEY,
+                                            department_id INTEGER NOT NULL,
+                                            report_date DATE NOT NULL,
+
+                                            staff_count INT DEFAULT 0,
+                                            active_staff_count INT DEFAULT 0,
+                                            detainees_assigned INT DEFAULT 0,
+
+                                            created_date TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+                                            CONSTRAINT fk_dept_stats__dept
+                                                FOREIGN KEY (department_id) REFERENCES departments(id),
+
+                                            CONSTRAINT unique_dept_date UNIQUE (department_id, report_date)
+);
+
+CREATE INDEX idx_report_date_department ON department_statistics_fact (report_date, department_id);
 

@@ -13,11 +13,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.web.dto.request.DetentionCenterSearchRequest;
+import vn.mk.eid.web.dto.request.detainee.QueryDetaineeRequest;
 import vn.mk.eid.web.dto.request.detention_center.DetentionCenterCreateRequest;
 import vn.mk.eid.web.dto.request.detention_center.DetentionCenterUpdateRequest;
 import vn.mk.eid.web.dto.request.detention_center.QueryDetentionCenterRequest;
+import vn.mk.eid.web.dto.response.excel.DetentionCenterExcelDTO;
+import vn.mk.eid.web.excel.DetaineeExportExcel;
+import vn.mk.eid.web.excel.DetentionCenterExportExcel;
 import vn.mk.eid.web.service.DetentionCenterService;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @RestController
@@ -91,5 +96,33 @@ public class DetentionCenterController {
     public ServiceResult deleteDetentionCenter(@PathVariable Integer id) {
         log.info("Deleting detention center with ID: {}", id);
         return detentionCenterService.deleteDetentionCenter(id);
+    }
+
+    @GetMapping("/export")
+    @Operation(summary = "Export detention center to Excel", description = "Export detention center data to an Excel file"
+    )
+    public void exportDetentionCenterToExcel(
+            DetentionCenterSearchRequest request,
+            HttpServletResponse response) {
+        try {
+
+            DetentionCenterExportExcel exporter = new DetentionCenterExportExcel(detentionCenterService);
+            exporter.exportMultiSheet(response, request);
+        } catch (Exception e) {
+            log.error("Error exporting detention center to Excel", e);
+            throw new RuntimeException("Error exporting detention center to Excel: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/get-top-3-newest")
+    @Operation(summary = "Get top 3 newest detention centers", description = "Retrieve the top 3 newest detention centers")
+    public ServiceResult getTop3NewestDetentionCenters() {
+        return detentionCenterService.getTop3Newest();
+    }
+
+    @GetMapping("/count")
+    @Operation(summary = "Count total detention centers", description = "Retrieve the total count of detention centers")
+    public ServiceResult countDetentionCenters() {
+        return detentionCenterService.countDetentionCenters();
     }
 }

@@ -29,4 +29,10 @@ public interface DepartmentRepository extends JpaRepository<DepartmentEntity, In
     List<DepartmentEntity> findByDetentionCenterIdAndIsActiveTrue(@Param("detentionCenterId") Integer detentionCenterId);
 
     Optional<DepartmentEntity> findByIdAndDetentionCenterId(Integer id, @NotNull Integer detentionCenterId);
+
+    Optional<DepartmentEntity> findByCode(String code);
+
+    @Query("SELECT d FROM DepartmentEntity d WHERE d.isActive=true ORDER BY d.name")
+    List<DepartmentEntity> findAllActive();
+
 }

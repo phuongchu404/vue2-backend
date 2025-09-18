@@ -12,4 +12,5 @@ public class AddUserRequest {
     private String phoneNumber;
     private Integer unitId;
     private String description;
+    private Integer detentionCenterId;
 }

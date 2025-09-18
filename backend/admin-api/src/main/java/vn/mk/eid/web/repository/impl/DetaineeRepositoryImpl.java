@@ -10,14 +10,14 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import vn.mk.eid.Common;
 import vn.mk.eid.web.dto.request.detainee.QueryDetaineeRequest;
+import vn.mk.eid.web.dto.request.report.DetaineeReportStatus;
 import vn.mk.eid.web.dto.response.DetaineeResponse;
+import vn.mk.eid.web.dto.response.report.DetaineeReportByMonth;
+import vn.mk.eid.web.dto.response.report.DetaineeReportByStatus;
 import vn.mk.eid.web.repository.DetaineeRepositoryCustom;
 import vn.mk.eid.web.utils.StringUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -133,4 +133,88 @@ public class DetaineeRepositoryImpl implements DetaineeRepositoryCustom {
 
         return new PageImpl<>(responses, pageable, count);
     }
+
+    @Override
+    public List<DetaineeReportByStatus> getDetaineeReportByStatus(DetaineeReportStatus request) {
+        List<DetaineeReportByStatus> responses;
+        Map<String, Object> params = new HashMap<>();
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT ")
+            .append(" detainee_id, ")
+            .append(" detention_center_id, ")
+            .append(" type, ")
+            .append(" start_date, ")
+            .append(" ROW_NUMBER() OVER (PARTITION BY detainee_id ORDER BY start_date DESC) AS rn ")
+            .append(" FROM detention_history ")
+            .append(" WHERE 1 = 1 ");
+
+        if (request.getDetentionCenterId() != null) {
+            sql.append(" AND detention_center_id = :detentionCenterId ");
+            params.put("detentionCenterId", request.getDetentionCenterId());
+        }
+
+        if (StringUtil.isNotBlank(request.getToDate())) {
+            sql.append(" AND start_date <= TO_DATE(:toDate, 'YYYY-MM-DD') ");
+            params.put("toDate", request.getToDate());
+        }
+
+        StringBuilder selectSql = new StringBuilder();
+        selectSql.append(" WITH latest_history AS ( ")
+                .append(sql)
+                .append(" ) ")
+                .append(" SELECT type, COUNT(DISTINCT detainee_id) AS count ")
+                .append(" FROM latest_history ")
+                .append(" WHERE rn = 1 ")
+                .append(" group by type ");
+
+        responses = jdbcTemplate.query(
+                selectSql.toString(),
+                params,
+                new BeanPropertyRowMapper<>(DetaineeReportByStatus.class)
+        );
+
+        return responses;
+    }
+
+    @Override
+    public List<DetaineeReportByMonth> getDetaineeReportByMonth(DetaineeReportStatus request) {
+        Map<String, Object> params = new HashMap<>();
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" FROM detention_history ");
+        sql.append(" WHERE 1 = 1 ");
+
+        if (request.getDetentionCenterId() != null) {
+            sql.append(" AND detention_center_id = :detentionCenterId ");
+            params.put("detentionCenterId", request.getDetentionCenterId());
+        }
+
+        if (StringUtil.isNotBlank(request.getFromDate())) {
+            sql.append(" AND start_date >= TO_DATE(:fromDate, 'YYYY-MM-DD') ");
+            params.put("fromDate", request.getFromDate());
+        }
+
+        if (StringUtil.isNotBlank(request.getToDate())) {
+            sql.append(" AND start_date <= TO_DATE(:toDate, 'YYYY-MM-DD') ");
+            params.put("toDate", request.getToDate());
+        }
+
+        sql.append(" GROUP BY TO_CHAR(start_date, 'MM/YYYY') ");
+        sql.append(" ORDER BY month ");
+
+        String selectSql = "SELECT " +
+                "  TO_CHAR(start_date, 'MM/YYYY') AS month, " +
+                "  COUNT(CASE WHEN type = 'INITIAL' THEN detainee_id END) AS newDetainees, " +
+                "  COUNT(CASE WHEN type = 'RELEASED' THEN detainee_id END) AS released " +
+                sql;
+
+        return jdbcTemplate.query(
+                selectSql,
+                params,
+                new BeanPropertyRowMapper<>(DetaineeReportByMonth.class)
+        );
+    }
+
+
 }

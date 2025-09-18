@@ -3,18 +3,22 @@ package vn.mk.eid.web.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.mk.eid.common.constant.Constants;
 import vn.mk.eid.common.constant.ExceptionConstants;
 import vn.mk.eid.common.dao.entity.DetaineeEntity;
 import vn.mk.eid.common.dao.entity.DetentionCenterEntity;
+import vn.mk.eid.common.dao.entity.DetentionHistoryEntity;
 import vn.mk.eid.common.dao.entity.WardEntity;
 import vn.mk.eid.common.dao.repository.DetaineeRepository;
+import vn.mk.eid.common.dao.repository.DetentionHistoryRepository;
 import vn.mk.eid.common.dao.repository.DetentionCenterRepository;
 import vn.mk.eid.common.dao.repository.WardRepository;
 import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.web.constant.DetaineeStatus;
+import vn.mk.eid.web.constant.DetentionHistoryType;
 import vn.mk.eid.web.constant.Gender;
 import vn.mk.eid.web.dto.request.detainee.DetaineeCreateRequest;
 import vn.mk.eid.web.dto.request.detainee.DetaineeUpdateRequest;
@@ -28,7 +32,7 @@ import vn.mk.eid.web.service.SequenceService;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
+import java.time.ZoneId;
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -36,7 +40,8 @@ public class DetaineeServiceImpl implements DetaineeService {
     private final DetaineeRepository detaineeRepository;
     private final DetaineeRepositoryCustom detaineeRepositoryCustom;
     private final DetentionCenterRepository detentionCenterRepository;
-    private final WardRepository wardRepository;
+	private final WardRepository wardRepository;
+    private final DetentionHistoryRepository detaineeHistoryRepository;
     private final SequenceService sequenceService;
 
     @Override
@@ -93,7 +98,7 @@ public class DetaineeServiceImpl implements DetaineeService {
         detainee = detaineeRepository.save(detainee);
 
         // Create initial detention history
-//        createDetentionHistory(detainee, detentionCenter, request.getDetentionDate(), request.getCellNumber(), "Initial detention");
+        createDetentionHistory(detainee, detentionCenter, request.getDetentionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), request.getCellNumber(), "Initial detention", DetentionHistoryType.INITIAL.name());
 
         // Update detention center population
         updateDetentionCenterPopulation(detentionCenter);
@@ -256,6 +261,18 @@ public class DetaineeServiceImpl implements DetaineeService {
         return ServiceResult.ok(detainee.stream().map(this::convertToResponse));
     }
 
+    @Override
+    public ServiceResult getTop3NewestDetainees() {
+        List<DetaineeEntity> detainees = detaineeRepository.findTop3OrderByUpdatedAtDesc(DetaineeStatus.DETAINED.toString(), PageRequest.of(0,3));
+        return ServiceResult.ok(detainees.stream().map(this::convertToResponse));
+    }
+
+    @Override
+    public ServiceResult getDetaineeCount() {
+        Long count = detaineeRepository.countByStatusDetained();
+        return ServiceResult.ok(count);
+    }
+
 
     private String generateDetaineeCode() {
         String prefix = "DN";
@@ -334,24 +351,27 @@ public class DetaineeServiceImpl implements DetaineeService {
         return response;
     }
 
-    private DetaineeResponse convertToResponse(DetaineeEntity detainee) {
+	private DetaineeResponse convertToResponse(DetaineeEntity detainee) {
         DetaineeResponse response = new DetaineeResponse();
         response.setId(detainee.getId());
         response.setDetaineeCode(detainee.getDetaineeCode());
         response.setProfileNumber(detainee.getProfileNumber());
         response.setFullName(detainee.getFullName());
+        response.setCharges(detainee.getCharges());
         return response;
     }
-    //    private void createDetentionHistory(Detainee detainee, DetentionCenter center,
-//                                        LocalDate startDate, String cellNumber, String reason) {
-//        DetentionHistory history = new DetentionHistory();
-//        history.setDetainee(detainee);
-//        history.setDetentionCenter(center);
-//        history.setStartDate(startDate);
-//        history.setCellNumber(cellNumber);
-//        history.setReason(reason);
-//        detentionHistoryRepository.save(history);
-//    }
+
+    private void createDetentionHistory(DetaineeEntity detainee, DetentionCenterEntity detentionCenter,
+                                    LocalDate startDate, String cellNumber, String reason, String type) {
+        DetentionHistoryEntity history = new DetentionHistoryEntity();
+        history.setDetaineeId(detainee.getId());
+        history.setDetentionCenterId(detentionCenter.getId());
+        history.setStartDate(startDate);
+        history.setCellNumber(cellNumber);
+        history.setReason(reason);
+        history.setType(type);
+        detaineeHistoryRepository.save(history);
+    }
 
     private void updateDetentionCenterPopulation(DetentionCenterEntity center) {
         long currentPopulation = detaineeRepository.countCurrentDetainees(center.getId());

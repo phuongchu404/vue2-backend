@@ -24,7 +24,7 @@ public class UserController {
     @PostMapping
     public ServiceResult<Boolean> addUser(@RequestBody AddUserRequest request) {
         log.info("Add user width userName: {}, realName: {}, mail: {}, phoneNumber", request.getUserName(), request.getRealName(), request.getMail(), request.getPhoneNumber());
-        return userService.addUser(request.getUserName(), request.getRealName(), request.getMail(), request.getPhoneNumber(), request.getUnitId(), request.getDescription());
+        return userService.addUser(request.getUserName(), request.getRealName(), request.getMail(), request.getPhoneNumber(), request.getDescription(), request.getDetentionCenterId());
     }
 
 

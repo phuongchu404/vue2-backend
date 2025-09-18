@@ -1,6 +1,7 @@
 package vn.mk.eid.common.response;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,6 +33,7 @@ public class UserVO implements Serializable {
     private Date lastLogin;
     private Integer type;
     private Integer tokenType;
+    private Integer dententionCenterId;
 
     public UserVO(Integer id, String userName, String realName, Date createTime, Date updateTime, Date lastLogin, Integer removable) {
         this.id = id;

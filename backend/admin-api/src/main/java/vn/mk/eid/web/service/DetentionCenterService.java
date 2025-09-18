@@ -21,5 +21,9 @@ public interface DetentionCenterService {
     ServiceResult findDetentionCentersByProvinceCode(String provinceCode);
 
     ServiceResult searchDetentionCenters(DetentionCenterSearchRequest request, Pageable pageable);
+
+    ServiceResult getTop3Newest();
+
+    ServiceResult countDetentionCenters();
 }
 

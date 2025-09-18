@@ -21,4 +21,6 @@ public interface IdentityRecordService {
     ServiceResult getIdentityRecordWithPaging(QueryIdentityRecordRequest request, Pageable pageable);
 
     ServiceResult deleteIdentityRecord(Long id);
+
+    ServiceResult countIdentityRecords();
 }

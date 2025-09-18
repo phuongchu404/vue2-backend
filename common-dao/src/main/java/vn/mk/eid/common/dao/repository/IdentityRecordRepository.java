@@ -28,4 +28,15 @@ public interface IdentityRecordRepository extends JpaRepository<IdentityRecordEn
             "LEFT JOIN AnthropometryEntity ar on ar.identityRecordId = ir.id " +
             "WHERE ir.id = :id")
     Optional<IdentityRecordEntity> findByIdWithDetails(@Param("id") Long id);
+
+    @Query(value = "select count(id) " +
+            " from identity_record " +
+            " where ?1 is null OR created_at < DATE_TRUNC('month', CURRENT_DATE)", nativeQuery = true)
+    Optional<Integer> getTotalIdentity(Boolean isPreviousMonth);
+
+    @Query("SELECT COUNT(ir) FROM IdentityRecordEntity ir ")
+    Long countAll();
+
+    @Query("SELECT COUNT(i) FROM IdentityRecordEntity i WHERE DATE(i.createdAt) BETWEEN :startDate AND :endDate")
+    Long countIdentityInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

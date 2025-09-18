@@ -9,8 +9,10 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import vn.mk.eid.Common;
+import vn.mk.eid.web.dto.request.report.DetaineeReportStatus;
 import vn.mk.eid.web.dto.request.staff.QueryStaffRequest;
 import vn.mk.eid.web.dto.response.StaffResponse;
+import vn.mk.eid.web.dto.response.report.StaffReportByDepartment;
 import vn.mk.eid.web.repository.StaffRepositoryCustom;
 import vn.mk.eid.web.utils.StringUtil;
 
@@ -105,5 +107,33 @@ public class StaffRepositoryImpl implements StaffRepositoryCustom {
         }
 
         return new PageImpl<>(responses, pageable, count);
+    }
+
+    @Override
+    public List<StaffReportByDepartment> getReportByDepartment(DetaineeReportStatus request) {
+        Map<String, Object> params = new LinkedHashMap<>();
+
+        StringBuilder sql = new StringBuilder(" from staff s ");
+        sql.append(" right join departments d on s.department_id = d.id AND s.is_active = true ");
+
+        if (request.getDetentionCenterId() != null) {
+            sql.append(" AND s.detention_center_id = :detentionCenterId ");
+            params.put("detentionCenterId", request.getDetentionCenterId());
+        }
+
+        sql.append(" join detention_centers dc on d.detention_center_id = dc.id ");
+        sql.append(" group by d.name, dc.name ");
+        String select = "select " +
+                " d.name departmentName, " +
+                " dc.name detentionCenterName, " +
+                " count(s.id) count, " +
+                " count(CASE WHEN status = 'ACTIVE' THEN s.id END) active " +
+                sql;
+
+        return jdbcTemplate.query(
+                select,
+                params,
+                new BeanPropertyRowMapper<>(StaffReportByDepartment.class)
+        );
     }
 }

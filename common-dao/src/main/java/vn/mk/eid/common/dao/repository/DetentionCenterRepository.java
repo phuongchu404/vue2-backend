@@ -16,6 +16,8 @@ import java.util.Optional;
 public interface DetentionCenterRepository extends JpaRepository<DetentionCenterEntity,Integer>, JpaSpecificationExecutor<DetentionCenterEntity> {
     Optional<DetentionCenterEntity> findByCode(String code);
 
+    Integer countByIsActiveIsTrue();
+
     Page<DetentionCenterEntity> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     List<DetentionCenterEntity> findByIsActiveTrue();
@@ -32,4 +34,10 @@ public interface DetentionCenterRepository extends JpaRepository<DetentionCenter
         "(:status IS NULL OR d.isActive = :status)")
 Page<DetentionCenterEntity> searchDetentionCenters(@Param("detentionCenterCode") String detentionCenterCode, @Param("detentionCenterName") String detentionCenterName,
                                                    @Param("status") Boolean status, Pageable pageable);
+
+    @Query(value = "select d from DetentionCenterEntity d where d.isActive = true order by d.updatedAt desc")
+    List<DetentionCenterEntity> findTop3OrderByUpdateAt(Pageable pageable);
+
+    @Query("SELECT COUNT(d) FROM DetentionCenterEntity d WHERE d.isActive = true")
+    Long countByIsActiveTrue();
 }

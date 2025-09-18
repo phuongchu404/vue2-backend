@@ -9,11 +9,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import vn.mk.eid.common.data.ServiceResult;
+import vn.mk.eid.web.dto.request.detainee.QueryDetaineeRequest;
 import vn.mk.eid.web.dto.request.staff.QueryStaffRequest;
 import vn.mk.eid.web.dto.request.staff.StaffCreateRequest;
 import vn.mk.eid.web.dto.request.staff.StaffUpdateRequest;
+import vn.mk.eid.web.excel.DetaineeExportExcel;
+import vn.mk.eid.web.excel.StaffExportExcel;
 import vn.mk.eid.web.service.StaffService;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @Slf4j
@@ -61,5 +65,33 @@ public class StaffController {
     public ServiceResult deleteStaff(
             @Parameter(description = "Staff ID") @PathVariable Integer id) {
         return staffService.deleteStaff(id);
+    }
+
+    @GetMapping("/export")
+    @Operation(summary = "Export staffs to Excel", description = "Export staff data to an Excel file"
+    )
+    public void exportStaffToExcel(
+            QueryStaffRequest request,
+            HttpServletResponse response) {
+        try {
+
+            StaffExportExcel exporter = new StaffExportExcel(staffService);
+            exporter.exportMultiSheet(response, request);
+        } catch (Exception e) {
+            log.error("Error exporting staffs to Excel", e);
+            throw new RuntimeException("Error exporting staffs to Excel: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/get-top-3-newest")
+    @Operation(summary = "Get top 3 newest staffs", description = "Retrieve the top 3 newest staffs")
+    public ServiceResult getTop3NewestStaffs() {
+        return staffService.findTop3NewestStaffs();
+    }
+
+    @GetMapping("/count")
+    @Operation(summary = "Count total staffs", description = "Retrieve the total count of staffs")
+    public ServiceResult countStaffs() {
+        return staffService.countStaffs();
     }
 }

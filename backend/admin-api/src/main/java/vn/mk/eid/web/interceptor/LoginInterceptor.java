@@ -2,6 +2,7 @@ package vn.mk.eid.web.interceptor;
 
 
 import vn.mk.eid.common.response.UserVO;
+import vn.mk.eid.user.cache.PermissionCache;
 import vn.mk.eid.user.service.TokenService;
 import vn.mk.eid.user.utils.CurrentUser;
 import org.springframework.stereotype.Component;
@@ -15,9 +16,11 @@ import javax.servlet.http.HttpServletResponse;
 public class LoginInterceptor extends HandlerInterceptorAdapter {
 
     private final TokenService tokenService;
+    private final PermissionCache permissionCache;
 
-    public LoginInterceptor(TokenService tokenService) {
+    public LoginInterceptor(TokenService tokenService, PermissionCache permissionCache) {
         this.tokenService = tokenService;
+        this.permissionCache = permissionCache;
     }
 
     @Override
@@ -26,6 +29,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         if (token != null) {
             UserVO userVO = tokenService.loadToken(token).successData();
             CurrentUser.setUser(userVO);
+            permissionCache.reinitPermissionCache();
         }
         return true;
     }

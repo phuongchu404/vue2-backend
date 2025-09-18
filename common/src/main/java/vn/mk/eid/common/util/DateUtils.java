@@ -73,4 +73,13 @@ public class DateUtils {
             throw new ServiceException(ResultCode.VALIDATE_ERROR.getCode(), ExceptionConstants.TIME_INVALID);
         }
     }
+
+    public static String convertLocalDateToString(LocalDate date, String pattern) {
+        try {
+            return DateTimeFormatter.ofPattern(pattern).format(date);
+        } catch (Exception e) {
+            log.error("[CONVERT_DATE_TO_STRING] error: {}", e.getMessage());
+            throw new ServiceException(ResultCode.VALIDATE_ERROR.getCode(), ExceptionConstants.TIME_INVALID);
+        }
+    }
 }

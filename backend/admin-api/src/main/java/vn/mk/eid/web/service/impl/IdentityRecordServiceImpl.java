@@ -272,6 +272,12 @@ public class IdentityRecordServiceImpl implements IdentityRecordService {
         return ServiceResult.ok();
     }
 
+    @Override
+    public ServiceResult countIdentityRecords() {
+        Long count = identityRecordRepository.count();
+        return ServiceResult.ok(count);
+    }
+
     private IdentityRecordResponse convertToResponse(IdentityRecordEntity record, DetaineeEntity detainee) {
         IdentityRecordResponse response = new IdentityRecordResponse();
         response.setDetaineeName(detainee.getFullName());

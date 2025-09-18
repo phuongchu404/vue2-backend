@@ -43,7 +43,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     public ServiceResult getWithPaging(QueryDepartmentRequest request) {
         Pageable pageable = null;
         if (request.getPageNo() != null && request.getPageSize() != null) {
-            pageable = PageRequest.of(request.getPageNo(), request.getPageSize(), Sort.by(Sort.Direction.DESC, "name"));
+            pageable = PageRequest.of(request.getPageNo()-1, request.getPageSize(), Sort.by(Sort.Direction.DESC, "name"));
         }
 
         Page<DepartmentResponse> page = departmentRepositoryCustom.getWithPaging(request, pageable);

@@ -23,4 +23,8 @@ public interface DetaineeService {
 
     ServiceResult getAllNoPaging();
 
+    ServiceResult getTop3NewestDetainees();
+
+    ServiceResult getDetaineeCount();
+
 }

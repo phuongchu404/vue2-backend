@@ -7,7 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import vn.mk.eid.common.dao.entity.DetentionCenterEntity;
 import vn.mk.eid.common.dao.entity.UserEntity;
+import vn.mk.eid.common.dao.repository.DetentionCenterRepository;
 import vn.mk.eid.common.dao.repository.RoleRepository;
 import vn.mk.eid.common.dao.repository.UserRepository;
 import vn.mk.eid.common.data.ResultCode;
@@ -41,8 +43,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final TokenService tokenService;
+    private final DetentionCenterRepository detentionCenterRepository;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, TokenService tokenService) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
+                           TokenService tokenService, DetentionCenterRepository detentionCenterRepository) {
+        this.detentionCenterRepository = detentionCenterRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.tokenService = tokenService;
@@ -84,7 +89,7 @@ public class UserServiceImpl implements UserService {
         UserVO vo = new UserVO(po.getId(), po.getUserName(), po.getRealName(), po.getCreateTime(), po.getUpdateTime(), po.getLastLogin(), po.getRemovable());
         vo.setTwoStepEnabled(po.getTwoStep() == 1);
         vo.setVerifyOtp(false);
-
+        vo.setDententionCenterId(po.getDetentionCenterId());
         vo.setRoles(roles);
         vo.setToken(token);
         vo.setTokenType(TokenType.tokenLogin);
@@ -107,14 +112,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ServiceResult addUser(String username, String realName, String mail, String phoneNumber, Integer unitId, String description) {
+    public ServiceResult addUser(String username, String realName, String mail, String phoneNumber, String description, Integer detentionCenterId) {
         log.info("Starting add a new user with username = {}", username);
+        DetentionCenterEntity center = null;
         Optional<UserEntity> optional = userRepository.findByUserName(username);
         if (optional.isPresent()) {
             return ServiceResult.fail(ResultCode.USER_ALREADY_EXISTED);
         }
+        if(detentionCenterId != null){
+            Optional<DetentionCenterEntity> detentionCenter = detentionCenterRepository.findById(detentionCenterId);
+            if(!detentionCenter.isPresent()){
+                return ServiceResult.fail(ResultCode.DETENTION_CENTER_NOT_FOUND);
+            }
+         center= detentionCenter.get();
+        }
+
         String newPassword = CryptoUtil.randomText(8);
         String encryptedPassword = CryptoUtil.encryptPassword(newPassword);
+
         UserEntity record = new UserEntity();
         record.setUserName(username);
         record.setRealName(realName);
@@ -124,7 +139,7 @@ public class UserServiceImpl implements UserService {
         record.setPassword(encryptedPassword);
         record.setConsPassFaulty(0);
         record.setTwoStep(LoginProperties.getTwoStep());
-        record.setUnitId(unitId);
+        record.setDetentionCenterId(center.getId());
         record.setDescription(description);
         record.setRemovable(1);
         record.setCreateUser(CurrentUser.getLoginUser().getId());
@@ -135,7 +150,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ServiceResult<Boolean> updateUserByUserName(Integer userId, String realName, String description, String phoneNumber, Integer unitId) {
+    public ServiceResult<Boolean> updateUserByUserName(Integer userId, String realName, String description, String phoneNumber, Integer detentionCenterId) {
         Optional<UserEntity> userEntity = userRepository.findById(userId);
         if (userEntity.isPresent()) {
             UserEntity user = userEntity.get();
@@ -143,8 +158,8 @@ public class UserServiceImpl implements UserService {
             user.setRealName(realName);
             user.setDescription(description);
             user.setPhoneNumber(phoneNumber);
+            user.setDetentionCenterId(detentionCenterId);
             user.setUpdateUser(CurrentUser.getLoginUser().getId());
-            user.setUnitId(unitId);
             userRepository.save(user);
             return ServiceResult.ok(true);
         }

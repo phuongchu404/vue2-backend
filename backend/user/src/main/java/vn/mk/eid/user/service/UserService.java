@@ -11,9 +11,9 @@ import java.util.List;
 public interface UserService {
     ServiceResult login(String username, String password, String otp);
 
-    ServiceResult addUser(String username, String realName, String mail, String phoneNumber, Integer unitId, String description);
+    ServiceResult addUser(String username, String realName, String mail, String phoneNumber, String description, Integer detentionCenterId);
 
-    ServiceResult<Boolean> updateUserByUserName(Integer userId, String realName, String description, String phoneNumber, Integer unitId);
+    ServiceResult<Boolean> updateUserByUserName(Integer userId, String realName, String description, String phoneNumber, Integer detentionCenterId);
 
     ServiceResult<Boolean> deleteUserById(Integer id);
 

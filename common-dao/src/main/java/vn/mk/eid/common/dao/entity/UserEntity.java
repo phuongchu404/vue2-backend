@@ -29,8 +29,8 @@ public class UserEntity implements AuditAware {
     String password;
     @Column(name = "SECRET")
     String secret;
-    @Column(name = "PROVIDER_CODE")
-    String providerCode;
+//    @Column(name = "PROVIDER_CODE")
+//    String providerCode;
     @Column(name = "TWO_STEP")
     Integer twoStep;
     @Column(name = "LAST_LOGIN")
@@ -55,8 +55,8 @@ public class UserEntity implements AuditAware {
     String mail;
     @Column(name = "PHONE_NUMBER")
     String phoneNumber;
-    @Column(name = "unit_id")
-    Integer unitId;
+    @Column(name = "detention_center_id")
+    Integer detentionCenterId;
 
     @Transient
     Integer userIdAudit;

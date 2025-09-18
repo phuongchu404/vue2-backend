@@ -1,6 +1,7 @@
 package vn.mk.eid.common.dao.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 import vn.mk.eid.common.dao.entity.audit.AuditAware;
 import vn.mk.eid.common.dao.entity.audit.AuditLogListener;
 
@@ -15,12 +16,17 @@ public class PermissionRoleEntity implements AuditAware {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
+
     @Column(name = "ROLE_ID")
     Integer roleId;
+
     @Column(name = "TAG")
     String tag;
+
+    @CreationTimestamp
     @Column(name = "CREATE_TIME")
     Date createTime;
+
     @Column(name = "REMOVABLE")
     Integer removable;
 

@@ -127,6 +127,19 @@ public class DetentionCenterServiceImpl implements DetentionCenterService {
         return ServiceResult.ok(page.map(this::convertToResponse));
     }
 
+    @Override
+    public ServiceResult getTop3Newest() {
+        PageRequest pageRequest = PageRequest.of(0, 3);
+        List<DetentionCenterEntity> page = detentionCenterRepository.findTop3OrderByUpdateAt(pageRequest);
+        return ServiceResult.ok(page.stream().map(this::convertToResponse).collect(Collectors.toList()));
+    }
+
+    @Override
+    public ServiceResult countDetentionCenters() {
+        Long count = detentionCenterRepository.countByIsActiveTrue();
+        return ServiceResult.ok(count);
+    }
+
     private DetentionCenterResponse convertToResponse(DetentionCenterEntity center) {
         DetentionCenterResponse response = new DetentionCenterResponse();
         response.setId(center.getId());

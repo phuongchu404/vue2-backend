@@ -23,4 +23,12 @@ public interface FingerprintCardRepository extends JpaRepository<FingerprintCard
     Page<FingerprintCardEntity> findByCreatedDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
     Optional<FingerprintCardEntity> findByPersonIdAndIdIsNot(Long personId, Long fingerprintCardId);
+
+    @Query(value = "select count(id) " +
+            " from fingerprint_card " +
+            " where ?1 is null OR created_at < DATE_TRUNC('month', CURRENT_DATE)", nativeQuery = true)
+    Optional<Integer> getTotalFingerCard(Boolean isPreviousMonth);
+
+    @Query("SELECT COUNT(fc) FROM FingerprintCardEntity fc WHERE DATE(fc.createdDate) BETWEEN :startDate AND :endDate")
+    Long countFingerprintInPeriod(@Param("startDate") LocalDate startDate,@Param("endDate") LocalDate endDate);
 }

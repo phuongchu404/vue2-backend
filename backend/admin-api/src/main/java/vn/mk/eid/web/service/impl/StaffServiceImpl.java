@@ -26,8 +26,10 @@ import vn.mk.eid.web.service.SequenceService;
 import vn.mk.eid.web.service.StaffService;
 import vn.mk.eid.web.utils.StringUtil;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +51,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public ServiceResult getStaffWithPaging(QueryStaffRequest request, Pageable pageable) {
         Page<StaffResponse> page = staffRepositoryCustom.getWithPaging(request, pageable);
-        return ServiceResult.ok(Paging.<StaffResponse>builder().content(page.getContent()).totalElements(page.getTotalElements()).build());
+        return ServiceResult.ok(page);
     }
 
     @Override
@@ -98,6 +100,19 @@ public class StaffServiceImpl implements StaffService {
     public ServiceResult getStaffById(Integer id) {
         StaffEntity staffEntity = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.STAFF_NOT_FOUND));
         return ServiceResult.ok(convertToStaffResponse(staffEntity, null, Boolean.TRUE));
+    }
+
+    @Override
+    public ServiceResult findTop3NewestStaffs() {
+        Pageable pageable = Pageable.ofSize(3);
+        List<StaffEntity> staffs = staffRepository.findTop3ByOrderByUpdateAtDesc(pageable);
+        return ServiceResult.ok(staffs.stream().map(this::convertToStaffResponse).collect(Collectors.toList()));
+    }
+
+    @Override
+    public ServiceResult countStaffs() {
+        Long count = staffRepository.countByIsActiveTrue();
+        return ServiceResult.ok(count);
     }
 
     private StaffResponse convertToStaffResponse(StaffEntity staffEntity, DetentionCenterEntity detentionCenterEntity, Boolean isGetFullData) {
@@ -165,6 +180,17 @@ public class StaffServiceImpl implements StaffService {
                 staffResponse.setTemporaryProvinceId(wardEntity.getProvince().getCode());
             });
         }
+        return staffResponse;
+    }
+
+    private StaffResponse convertToStaffResponse(StaffEntity staffEntity) {
+        StaffResponse staffResponse = new StaffResponse();
+        staffResponse.setStaffCode(staffEntity.getStaffCode());
+        staffResponse.setFullName(staffEntity.getFullName());
+        staffResponse.setGender(staffEntity.getGender());
+        staffResponse.setIdNumber(staffEntity.getIdNumber());
+        staffResponse.setRank(staffEntity.getRank());
+        staffResponse.setProfileNumber(staffEntity.getProfileNumber());
         return staffResponse;
     }
 

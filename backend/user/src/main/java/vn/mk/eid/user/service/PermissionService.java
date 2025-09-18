@@ -10,7 +10,7 @@ import java.util.List;
  * @since 2024-07-26
  */
 public interface PermissionService {
-    ServiceResult<Boolean> batchSaveOrUpdate(List<PermissionEntity> permissions);
+    ServiceResult<Boolean> syncPermissions(List<PermissionEntity> permissions);
 
     ServiceResult listAllPermissions();
 

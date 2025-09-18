@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.mk.eid.common.dao.entity.DetaineeEntity;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -44,4 +45,41 @@ public interface DetaineeRepository extends JpaRepository<DetaineeEntity, Long> 
     long countCurrentDetainees(@Param("centerId") Integer centerId);
 
     List<DetaineeEntity> findByIdIn(Collection<Long> detaineeIds);
+
+    @Query(value = "WITH latest_history AS ( " +
+            "    SELECT " +
+            "        detainee_id, " +
+            "        detention_center_id, " +
+            "        type, " +
+            "        start_date, " +
+            "        ROW_NUMBER() OVER (PARTITION BY detainee_id ORDER BY start_date DESC) AS rn " +
+            "    FROM detention_history " +
+            ") " +
+            "SELECT COUNT(DISTINCT detainee_id) AS currently_detained_count " +
+            "FROM latest_history " +
+            "WHERE rn = 1 AND type = 'INITIAL' AND (?1 IS NULL OR start_date < ?2) ", nativeQuery = true)
+    Optional<Integer> getTotalDetainee(Boolean isPreviousMonth, LocalDate toDate);
+
+    @Query(value = "select d from DetaineeEntity d where d.status = :status order by d.updatedAt desc")
+    List<DetaineeEntity> findTop3OrderByUpdatedAtDesc(@Param("status") String status, Pageable pageable);
+
+    @Query("SELECT COUNT(d) FROM DetaineeEntity d WHERE d.status = 'DETAINED'")
+    Long countByStatusDetained();
+
+
+    @Query("SELECT COUNT(d) FROM DetaineeEntity d WHERE d.status = 'DETAINED'")
+    Long countDetainedDetainees();
+
+    @Query("SELECT COUNT(d) FROM DetaineeEntity d WHERE d.status = 'RELEASED'")
+    Long countReleasedDetainee();
+
+    @Query("SELECT COUNT(d) FROM DetaineeEntity d WHERE DATE(d.createdAt) BETWEEN :startDate AND :endDate")
+    Long countDetaineesInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query(value = "SELECT d.status, COUNT(*) AS cnt, " +
+            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM detainees), 2) AS percentage " +
+            "FROM detainees d GROUP BY d.status",
+            nativeQuery = true)
+    List<Object[]> getDetaineeStatusStatistics();
+
 }

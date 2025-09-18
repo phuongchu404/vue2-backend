@@ -27,7 +27,7 @@ public class PermissionEntity {
     String pattern;
 
     @Column(name = "IS_WHITE_LIST")
-    Integer isWhiteList;
+    Boolean isWhiteList;
 
     @CreationTimestamp
     @Column(name = "CREATE_TIME")

@@ -36,7 +36,8 @@ public class PermissionCache implements MessageListener {
     @PostConstruct
     private void initPermissionCache() {
         cache.clear();
-        List<PermissionEntity> permissions = permissionRepository.findAllByType("button");
+        List<String> types = Arrays.asList("button", "api");
+        List<PermissionEntity> permissions = permissionRepository.findAllByTypes(types);
         permissions.stream().filter(po -> !StringUtils.isEmpty(po.getPattern())).forEach(po -> {
             List<PermissionRoleEntity> rolePermissions = permissionRoleRepository.findAllByTag(po.getTag());
             List<Integer> roleIds = rolePermissions.stream().map(PermissionRoleEntity::getRoleId).collect(Collectors.toList());
@@ -46,7 +47,8 @@ public class PermissionCache implements MessageListener {
 
     public boolean reinitPermissionCache() {
         cache.clear();
-        List<PermissionEntity> permissions = permissionRepository.findAllByType("button");
+        List<String> types = Arrays.asList("button", "api");
+        List<PermissionEntity> permissions = permissionRepository.findAllByTypes(types);
         permissions.stream().filter(po -> !StringUtils.isEmpty(po.getPattern())).forEach(po -> {
             List<PermissionRoleEntity> rolePermissions = permissionRoleRepository.findAllByTag(po.getTag());
             List<Integer> roleIds = rolePermissions.stream().map(PermissionRoleEntity::getRoleId).collect(Collectors.toList());
@@ -70,7 +72,7 @@ public class PermissionCache implements MessageListener {
         AntPathMatcher antPathMatcher = new AntPathMatcher();
         for (PermissionEntity permission : permissions) {
             boolean urlMatch = antPathMatcher.match(permission.getPattern(), url);
-            if (urlMatch && permission.getIsWhiteList() == 1) {
+            if (urlMatch && permission.getIsWhiteList() == true) {
                 roleIds.addAll(cache.get(permission));
             }
             boolean methodMatch = permission.getMethod() == null || permission.getMethod().equalsIgnoreCase(method);

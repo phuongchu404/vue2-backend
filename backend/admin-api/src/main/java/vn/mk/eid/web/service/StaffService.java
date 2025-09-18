@@ -16,4 +16,8 @@ public interface StaffService {
     ServiceResult deleteStaff(Integer id);
 
     ServiceResult getStaffById(Integer id);
+
+    ServiceResult findTop3NewestStaffs();
+
+    ServiceResult countStaffs();
 }

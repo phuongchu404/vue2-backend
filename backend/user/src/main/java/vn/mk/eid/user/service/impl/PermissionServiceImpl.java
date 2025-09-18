@@ -11,10 +11,10 @@ import vn.mk.eid.common.data.ResultCode;
 import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.user.service.PermissionService;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author mk
@@ -33,22 +33,37 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public ServiceResult<Boolean> batchSaveOrUpdate(List<PermissionEntity> permissions) {
-        List<String> tags = new ArrayList<>();
-        for (PermissionEntity permission : permissions)
-            tags.add(permission.getTag());
-        List<PermissionEntity> permissionsOld = permissionRepository.findAllByTags(tags);
-        for (PermissionEntity permissionOld : permissionsOld) {
-            permissionRepository.delete(permissionOld);
-        }
+    public ServiceResult<Boolean> syncPermissions(List<PermissionEntity> permissions) {
+        List<String> tags = permissions.stream().map(PermissionEntity::getTag).collect(Collectors.toList());
+
+        // 1. Remove all permissions that are not in the list
+        permissionRepository.deleteByTagNotIn(tags);
+
+        // 2. Add or update permissions in the database
+        permissions.forEach(permission -> {
+            Optional<PermissionEntity> permissionEntity = permissionRepository.findByTag(permission.getTag());
+            if(permissionEntity.isPresent()){
+                PermissionEntity existingPermission = permissionEntity.get();
+                existingPermission.setType(permission.getType());
+                existingPermission.setIsWhiteList(permission.getIsWhiteList());
+                existingPermission.setMethod(permission.getMethod());
+                existingPermission.setPattern(permission.getPattern());
+                permissionRepository.save(existingPermission);
+            } else {
+                permissionRepository.save(permission);
+            }
+        });
+
+        // 3. Delete the permissions that have been assigned to the role but are not in the list
+        permissionRoleRepository.deleteByTagNotIn(tags);
+
         Integer adminRoleId = 1;
         permissions.forEach(permission -> {
-            Optional<PermissionRoleEntity> permissionRoleEntityOptional = permissionRoleRepository.findAllByRemovableAndTag(adminRoleId, permission.getTag());
+            Optional<PermissionRoleEntity> permissionRoleEntityOptional = permissionRoleRepository.findAllByRoleIdAndTag(adminRoleId, permission.getTag());
             if (!permissionRoleEntityOptional.isPresent()) {
                 PermissionRoleEntity rolePermission = new PermissionRoleEntity();
                 rolePermission.setRoleId(adminRoleId);
                 rolePermission.setTag(permission.getTag());
-                rolePermission.setCreateTime(new Date());
                 permissionRoleRepository.save(rolePermission);
             }
         });
