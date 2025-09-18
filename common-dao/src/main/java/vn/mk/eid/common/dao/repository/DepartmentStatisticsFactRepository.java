@@ -15,11 +15,11 @@ public interface DepartmentStatisticsFactRepository extends JpaRepository<Depart
     @Query("SELECT d FROM DepartmentStatisticsFactEntity d WHERE d.reportDate = :reportDate ORDER BY d.departmentId")
     List<DepartmentStatisticsFactEntity> findByReportDate(@Param("reportDate") LocalDate reportDate);
 
-    @Query("SELECT d.departmentId, dept.name, d.activeStaffCount, d.detaineesAssigned, " +
-            "CASE WHEN d.activeStaffCount > 0 THEN CAST(d.detaineesAssigned AS DOUBLE) / d.activeStaffCount ELSE 0 END as efficiency " +
-            "FROM DepartmentStatisticsFactEntity d JOIN DepartmentEntity dept ON d.departmentId = dept.id " +
-            "WHERE d.reportDate = :reportDate ORDER BY d.activeStaffCount DESC")
-    List<Object[]> getDepartmentSummaryByDate(@Param("reportDate") LocalDate reportDate);
+//    @Query("SELECT d.departmentId, dept.name, d.activeStaffCount, d.detaineesAssigned, " +
+//            "CASE WHEN d.activeStaffCount > 0 THEN CAST(d.detaineesAssigned AS DOUBLE) / d.activeStaffCount ELSE 0 END as efficiency " +
+//            "FROM DepartmentStatisticsFactEntity d JOIN DepartmentEntity dept ON d.departmentId = dept.id " +
+//            "WHERE d.reportDate = :reportDate ORDER BY d.activeStaffCount DESC")
+//    List<Object[]> getDepartmentSummaryByDate(@Param("reportDate") LocalDate reportDate);
 
     @Query("SELECT d FROM DepartmentStatisticsFactEntity d WHERE d.departmentId = :departmentId " +
             "AND d.reportDate BETWEEN :startDate AND :endDate ORDER BY d.reportDate")

@@ -25,6 +25,7 @@ public class ReportCacheService {
     @CacheEvict(value = {"overview-stats", "detainee-status", "monthly-reports"}, allEntries = true)
     public void clearAllReportCache() {
         // Clear cache when data is updated
+
     }
 
     @Scheduled(fixedRate = 3600000) // Clear cache every hour

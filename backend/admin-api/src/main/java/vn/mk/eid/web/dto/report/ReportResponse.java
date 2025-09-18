@@ -72,4 +72,15 @@ public class ReportResponse {
         this.generatedAt = LocalDateTime.now();
         this.totalRecords = data != null ? data.size() : 0;
     }
+
+    public ReportResponse(String s, List<ReportColumn> columns, List<Map<String, Object>> data, Map<String, Object> summary, ChartData chartData, List<ReportInsight> insights) {
+        this.title = s;
+        this.columns = columns;
+        this.data = data;
+        this.summary = summary;
+        this.chartData = chartData;
+        this.insights = insights;
+        this.generatedAt = LocalDateTime.now();
+        this.totalRecords = data != null ? data.size() : 0;
+    }
 }

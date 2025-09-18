@@ -14,23 +14,23 @@ import vn.mk.eid.web.service.ReportService;
 public class ReportController {
     private final ReportService reportService;
 
-    @GetMapping("/overview")
-    public ServiceResult getReportOverview() {
-        return reportService.getReportOverview();
-    }
-
-    @GetMapping("/detainee-by-status")
-    public ServiceResult getDetaineeReportByStatus(DetaineeReportStatus request) {
-        return reportService.getDetaineeReportByStatus(request);
-    }
-
-    @GetMapping("/detainee-by-month")
-    public ServiceResult getDetaineeReportByMonth(DetaineeReportStatus request) {
-        return reportService.getDetaineeReportByMonth(request);
-    }
-
-    @GetMapping("/staff-by-department")
-    public ServiceResult getStaffReportByDepartment(DetaineeReportStatus request) {
-        return reportService.getStaffReportByDepartment(request);
-    }
+//    @GetMapping("/overview")
+//    public ServiceResult getReportOverview() {
+//        return reportService.getReportOverview();
+//    }
+//
+//    @GetMapping("/detainee-by-status")
+//    public ServiceResult getDetaineeReportByStatus(DetaineeReportStatus request) {
+//        return reportService.getDetaineeReportByStatus(request);
+//    }
+//
+//    @GetMapping("/detainee-by-month")
+//    public ServiceResult getDetaineeReportByMonth(DetaineeReportStatus request) {
+//        return reportService.getDetaineeReportByMonth(request);
+//    }
+//
+//    @GetMapping("/staff-by-department")
+//    public ServiceResult getStaffReportByDepartment(DetaineeReportStatus request) {
+//        return reportService.getStaffReportByDepartment(request);
+//    }
 }

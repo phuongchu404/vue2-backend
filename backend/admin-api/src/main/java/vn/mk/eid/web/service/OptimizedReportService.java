@@ -6,143 +6,51 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import vn.mk.eid.common.dao.entity.DailyStatisticsFactEntity;
 import vn.mk.eid.common.dao.entity.MonthlyStatisticsFactEntity;
-import vn.mk.eid.common.dao.repository.DailyStatisticsFactRepository;
-import vn.mk.eid.common.dao.repository.DepartmentStatisticsFactRepository;
-import vn.mk.eid.common.dao.repository.MonthlyStatisticsFactRepository;
-import vn.mk.eid.web.dto.report.ChartData;
-import vn.mk.eid.web.dto.report.OverviewStatistics;
-import vn.mk.eid.web.dto.report.ReportInsight;
-import vn.mk.eid.web.dto.report.ReportResponse;
+import vn.mk.eid.common.dao.repository.*;
+import vn.mk.eid.web.constant.DetaineeStatus;
+import vn.mk.eid.web.dto.report.*;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Primary
 @Slf4j
-public class OptimizedReportService extends BaseReportService{
+@RequiredArgsConstructor
+public class OptimizedReportService implements ReportService {
+
+
+    private final DailyStatisticsFactRepository dailyStatsRepository;
+
+
+    private final MonthlyStatisticsFactRepository monthlyStatsRepository;
+
+
+    private final DetaineeRepository detaineeRepository;
+
+
+    private final StaffRepository staffRepository;
+
     @Override
     public OverviewStatistics getOverviewStatistics() {
         try {
-            // Use pre-aggregated data instead of real-time calculation
+            // Lấy từ pre-aggregated data thay vì tính real-time
             Optional<DailyStatisticsFactEntity> latestDaily = dailyStatsRepository
                     .findAllOrderByDateDesc().stream().findFirst();
 
             if (latestDaily.isPresent()) {
                 DailyStatisticsFactEntity latest = latestDaily.get();
 
-                // Get changes from current month
+                // Lấy thay đổi từ tháng hiện tại
                 LocalDate now = LocalDate.now();
                 Optional<MonthlyStatisticsFactEntity> currentMonth = monthlyStatsRepository
                         .findByYearAndMonth(now.getYear(), now.getMonthValue());
 
-                Integer detaineeChange = currentMonth.map(MonthlyStatisticsFactEntity::getNewDetainees).orElse(0);
-                Integer staffChange = currentMonth.map(MonthlyStatisticsFactEntity::getNewStaff).orElse(0);
-                Integer identityChange = currentMonth.map(MonthlyStatisticsFactEntity::getNewIdentityRecords).orElse(0);
-                Integer fingerprintChange = currentMonth.map(MonthlyStatisticsFactEntity::getNewFingerprintCards).orElse(0);
-
-                return new OverviewStatistics(
-                        latest.getActiveDetainees(),
-                        latest.getActiveStaff(),
-                        latest.getTotalIdentityRecords(),
-                        latest.getTotalFingerprintCards(),
-                        detaineeChange,
-                        staffChange,
-                        identityChange,
-                        fingerprintChange
-                );
-            } else {
-                // Fallback to parent implementation
-                log.warn("No pre-aggregated data found, falling back to real-time calculation");
-                return super.getOverviewStatistics();
-            }
-
-        } catch (Exception e) {
-            log.error("Error getting optimized overview statistics", e);
-            // Fallback to parent implementation
-            return super.getOverviewStatistics();
-        }
-    }
-
-    @Override
-    public ReportResponse getDetaineesByMonthReport(LocalDate fromDate, LocalDate toDate) {
-        try {
-            // Use pre-aggregated monthly data
-            List<MonthlyStatisticsFactEntity> monthlyData = getMonthlyDataInRange(fromDate, toDate);
-
-            if (!monthlyData.isEmpty()) {
-                List<ReportColumn> columns = Arrays.asList(
-                        new ReportColumn("month", "Tháng", "text"),
-                        new ReportColumn("newDetainees", "Phạm nhân mới", "number"),
-                        new ReportColumn("totalDetainees", "Tổng cuối tháng", "number")
-                );
-
-                List<Map<String, Object>> data = monthlyData.stream()
-                        .map(monthly -> {
-                            Map<String, Object> item = new HashMap<>();
-                            item.put("month", String.format("%d-%02d", monthly.getYear(), monthly.getMonth()));
-                            item.put("newDetainees", monthly.getNewDetainees());
-                            item.put("totalDetainees", monthly.getTotalDetainees());
-                            return item;
-                        })
-                        .collect(Collectors.toList());
-
-                // Create chart data for trends
-                ChartData chartData = createLineChartData(data, "month",
-                        Arrays.asList("newDetainees"), Arrays.asList("Phạm nhân mới"));
-
-                // Create insights
-                List<ReportInsight> insights = createOptimizedMonthlyInsights(monthlyData);
-
-                return new ReportResponse(
-                        "Báo Cáo Phạm Nhân Theo Tháng",
-                        columns, data, null, chartData, insights
-                );
-            } else {
-                // Fallback to parent implementation
-                return super.getDetaineesByMonthReport(fromDate, toDate);
-            }
-
-        } catch (Exception e) {
-            log.error("Error generating optimized detainees by month report", e);
-            // Fallback to parent implementation
-            return super.getDetaineesByMonthReport(fromDate, toDate);
-        }
-    }
-
-    @Autowired
-    private DailyStatisticsFactRepository dailyStatsRepository;
-
-    @Autowired
-    private MonthlyStatisticsFactRepository monthlyStatsRepository;
-
-    @Autowired
-    private DetaineeRepository detaineeRepository;
-
-    @Autowired
-    private StaffRepository staffRepository;
-
-    @Override
-    public OverviewStatistics getOverviewStatistics() {
-        try {
-            // Lấy từ pre-aggregated data thay vì tính real-time
-            Optional<DailyStatisticsFact> latestDaily = dailyStatsRepository
-                    .findAllOrderByDateDesc().stream().findFirst();
-
-            if (latestDaily.isPresent()) {
-                DailyStatisticsFact latest = latestDaily.get();
-
-                // Lấy thay đổi từ tháng hiện tại
-                LocalDate now = LocalDate.now();
-                Optional<MonthlyStatisticsFact> currentMonth = monthlyStatsRepository
-                        .findByYearAndMonth(now.getYear(), now.getMonthValue());
-
-                Integer detaineeChange = currentMonth.map(MonthlyStatisticsFact::getNewDetainees).orElse(0);
-                Integer staffChange = currentMonth.map(MonthlyStatisticsFact::getNewStaff).orElse(0);
-                Integer identityChange = currentMonth.map(MonthlyStatisticsFact::getNewIdentityRecords).orElse(0);
-                Integer fingerprintChange = currentMonth.map(MonthlyStatisticsFact::getNewFingerprintCards).orElse(0);
+                Long detaineeChange = currentMonth.map(MonthlyStatisticsFactEntity::getNewDetainees).orElse(0L);
+                Long staffChange = currentMonth.map(MonthlyStatisticsFactEntity::getNewStaff).orElse(0L);
+                Long identityChange = currentMonth.map(MonthlyStatisticsFactEntity::getNewIdentityRecords).orElse(0L);
+                Long fingerprintChange = currentMonth.map(MonthlyStatisticsFactEntity::getNewFingerprintCards).orElse(0L);
 
                 return new OverviewStatistics(
                         latest.getActiveDetainees(),
@@ -162,7 +70,7 @@ public class OptimizedReportService extends BaseReportService{
 
         } catch (Exception e) {
             log.error("Error getting overview statistics", e);
-            return new OverviewStatistics(0, 0, 0, 0, 0, 0, 0, 0);
+            return new OverviewStatistics(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
         }
     }
 
@@ -216,7 +124,7 @@ public class OptimizedReportService extends BaseReportService{
     public ReportResponse getDetaineesByMonthReport(LocalDate fromDate, LocalDate toDate) {
         try {
             // Sử dụng pre-aggregated monthly data
-            List<MonthlyStatisticsFact> monthlyData = getMonthlyDataInRange(fromDate, toDate);
+            List<MonthlyStatisticsFactEntity> monthlyData = getMonthlyDataInRange(fromDate, toDate);
 
             List<ReportColumn> columns = Arrays.asList(
                     new ReportColumn("month", "Tháng", "text"),
@@ -253,16 +161,16 @@ public class OptimizedReportService extends BaseReportService{
 
     // Helper methods
     private OverviewStatistics calculateOverviewStatisticsRealTime() {
-        Integer totalDetainees = detaineeRepository.countActiveDetainees().intValue();
-        Integer totalStaff = staffRepository.countActiveStaff().intValue();
+        Long totalDetainees = detaineeRepository.countDetainedDetainees();
+        Long totalStaff = staffRepository.countActiveStaff();
         // Add other calculations...
 
-        return new OverviewStatistics(totalDetainees, totalStaff, 0, 0, 0, 0, 0, 0);
+        return new OverviewStatistics(totalDetainees, totalStaff, 0L, 0L, 0L, 0L, 0L, 0L);
     }
 
     private String translateStatus(DetaineeStatus status) {
         switch (status) {
-            case ACTIVE: return "Đang giam giữ";
+            case DETAINED: return "Đang giam giữ";
             case RELEASED: return "Đã thả";
             case TRANSFERRED: return "Chuyển trại";
             default: return "Không xác định";
@@ -322,11 +230,11 @@ public class OptimizedReportService extends BaseReportService{
         );
     }
 
-    private List<ReportInsight> createMonthlyInsights(List<MonthlyStatisticsFact> monthlyData) {
+    private List<ReportInsight> createMonthlyInsights(List<MonthlyStatisticsFactEntity> monthlyData) {
         if (monthlyData.isEmpty()) return new ArrayList<>();
 
-        MonthlyStatisticsFact maxMonth = monthlyData.stream()
-                .max(Comparator.comparing(MonthlyStatisticsFact::getNewDetainees))
+        MonthlyStatisticsFactEntity maxMonth = monthlyData.stream()
+                .max(Comparator.comparing(MonthlyStatisticsFactEntity::getNewDetainees))
                 .orElse(monthlyData.get(0));
 
         return Arrays.asList(
@@ -338,7 +246,7 @@ public class OptimizedReportService extends BaseReportService{
         );
     }
 
-    private List<MonthlyStatisticsFact> getMonthlyDataInRange(LocalDate fromDate, LocalDate toDate) {
+    private List<MonthlyStatisticsFactEntity> getMonthlyDataInRange(LocalDate fromDate, LocalDate toDate) {
         return monthlyStatsRepository.findByYearMonthRange(
                 fromDate.getYear(), fromDate.getMonthValue(),
                 toDate.getYear(), toDate.getMonthValue()
@@ -361,168 +269,7 @@ public class OptimizedReportService extends BaseReportService{
                 .orElse(0);
     }
 
-    // Helper methods for department reports
-    private ReportResponse getStaffByDepartmentReportFallback() {
-        // Fallback to direct query if pre-aggregated data not available
-        List<Object[]> results = staffRepository.getStaffByDepartmentStatistics();
-
-        List<ReportColumn> columns = Arrays.asList(
-                new ReportColumn("department", "Phòng Ban", "text"),
-                new ReportColumn("count", "Số Lượng", "number"),
-                new ReportColumn("active", "Đang làm việc", "number")
-        );
-
-        List<Map<String, Object>> data = results.stream()
-                .map(row -> {
-                    Map<String, Object> item = new HashMap<>();
-                    item.put("department", row[0]); // department name
-                    item.put("count", ((Number) row[1]).intValue()); // total count
-                    item.put("active", ((Number) row[2]).intValue()); // active count
-                    return item;
-                })
-                .collect(Collectors.toList());
-
-        List<ReportInsight> insights = createDepartmentInsights(data);
-
-        return new ReportResponse("Báo Cáo Cán Bộ Theo Phòng Ban", columns, data, null, null, insights);
-    }
-
-    private List<ReportInsight> createDepartmentInsights(List<Map<String, Object>> data) {
-        if (data.isEmpty()) return new ArrayList<>();
-
-        // Find department with most staff
-        Map<String, Object> maxDept = data.stream()
-                .max(Comparator.comparing(row -> (Integer) row.get("active")))
-                .orElse(data.get(0));
-
-        // Calculate total active staff across all departments
-        int totalActive = data.stream().mapToInt(row -> (Integer) row.get("active")).sum();
-
-        return Arrays.asList(
-                new ReportInsight(
-                        "Phòng ban lớn nhất",
-                        "Phòng " + maxDept.get("department") + " có số cán bộ hoạt động đông nhất",
-                        maxDept.get("active") + " người"
-                ),
-                new ReportInsight(
-                        "Tổng cán bộ hoạt động",
-                        "Tổng cộng có " + totalActive + " cán bộ đang hoạt động",
-                        totalActive + " người"
-                )
-        );
-    }
-
-    private ChartData createDepartmentTrendChart(List<Map<String, Object>> data) {
-        Map<String, Object> chartDataMap = new HashMap<>();
-
-        List<String> labels = data.stream()
-                .map(row -> (String) row.get("date"))
-                .collect(Collectors.toList());
-
-        List<Integer> staffCounts = data.stream()
-                .map(row -> (Integer) row.get("activeStaffCount"))
-                .collect(Collectors.toList());
-
-        List<Integer> detaineeAssigned = data.stream()
-                .map(row -> (Integer) row.get("detaineesAssigned"))
-                .collect(Collectors.toList());
-
-        Map<String, Object> dataset1 = new HashMap<>();
-        dataset1.put("label", "Cán bộ hoạt động");
-        dataset1.put("data", staffCounts);
-        dataset1.put("borderColor", "#667eea");
-
-        Map<String, Object> dataset2 = new HashMap<>();
-        dataset2.put("label", "Phạm nhân được giao");
-        dataset2.put("data", detaineeAssigned);
-        dataset2.put("borderColor", "#51cf66");
-
-        chartDataMap.put("labels", labels);
-        chartDataMap.put("datasets", Arrays.asList(dataset1, dataset2));
-
-        return new ChartData("line", chartDataMap);
-    }
-
-    private ChartData createDepartmentComparisonChart(List<Map<String, Object>> data) {
-        Map<String, Object> chartDataMap = new HashMap<>();
-
-        List<String> labels = data.stream()
-                .map(row -> (String) row.get("department"))
-                .collect(Collectors.toList());
-
-        List<Integer> activeStaff = data.stream()
-                .map(row -> (Integer) row.get("activeStaffCount"))
-                .collect(Collectors.toList());
-
-        Map<String, Object> dataset = new HashMap<>();
-        dataset.put("label", "Cán bộ hoạt động");
-        dataset.put("data", activeStaff);
-        dataset.put("backgroundColor", Arrays.asList("#667eea", "#51cf66", "#ff6b6b", "#ffd43b", "#845ef7"));
-
-        chartDataMap.put("labels", labels);
-        chartDataMap.put("datasets", Arrays.asList(dataset));
-
-        return new ChartData("bar", chartDataMap);
-    }
-
-    private List<ReportInsight> createDepartmentTrendInsights(List<DepartmentStatisticsFact> stats, String departmentName) {
-        if (stats.size() < 2) return new ArrayList<>();
-
-        DepartmentStatisticsFact latest = stats.get(stats.size() - 1);
-        DepartmentStatisticsFact previous = stats.get(stats.size() - 2);
-
-        int staffChange = latest.getActiveStaffCount() - previous.getActiveStaffCount();
-        int detaineeChange = latest.getDetaineesAssigned() - previous.getDetaineesAssigned();
-
-        List<ReportInsight> insights = new ArrayList<>();
-
-        if (staffChange != 0) {
-            insights.add(new ReportInsight(
-                    "Thay đổi cán bộ",
-                    departmentName + " " + (staffChange > 0 ? "tăng" : "giảm") + " " + Math.abs(staffChange) + " cán bộ",
-                    (staffChange > 0 ? "+" : "") + staffChange + " người"
-            ));
-        }
-
-        if (detaineeChange != 0) {
-            insights.add(new ReportInsight(
-                    "Thay đổi phạm nhân",
-                    "Số phạm nhân được giao " + (detaineeChange > 0 ? "tăng" : "giảm") + " " + Math.abs(detaineeChange),
-                    (detaineeChange > 0 ? "+" : "") + detaineeChange + " người"
-            ));
-        }
-
-        return insights;
-    }
-
-    private List<ReportInsight> createDepartmentComparisonInsights(List<Map<String, Object>> data) {
-        if (data.isEmpty()) return new ArrayList<>();
-
-        // Department with highest efficiency
-        Map<String, Object> mostEfficient = data.stream()
-                .max(Comparator.comparing(row -> (Double) row.get("efficiency")))
-                .orElse(data.get(0));
-
-        // Department with most staff
-        Map<String, Object> largestDept = data.get(0); // Already sorted by activeStaffCount DESC
-
-        return Arrays.asList(
-                new ReportInsight(
-                        "Phòng ban hiệu quả nhất",
-                        "Phòng " + mostEfficient.get("department") + " có hiệu suất cao nhất",
-                        String.format("%.2f phạm nhân/cán bộ", mostEfficient.get("efficiency"))
-                ),
-                new ReportInsight(
-                        "Phòng ban lớn nhất",
-                        "Phòng " + largestDept.get("department") + " có nhiều cán bộ hoạt động nhất",
-                        largestDept.get("activeStaffCount") + " cán bộ"
-                )
-        );
-    }
-
-    private String getDepartmentName(Long departmentId) {
-        return departmentRepository.findById(departmentId)
-                .map(Department::getName)
-                .orElse("Unknown Department");
+    private ReportResponse createEmptyReport(String title) {
+        return new ReportResponse(title, new ArrayList<>(), new ArrayList<>(), null, null, null);
     }
 }

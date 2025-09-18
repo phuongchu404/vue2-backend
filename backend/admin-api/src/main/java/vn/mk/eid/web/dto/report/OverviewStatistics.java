@@ -5,20 +5,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OverviewStatistics {
-    private Integer totalDetainees;
-    private Integer totalStaff;
-    private Integer totalIdentity;
-    private Integer totalFingerprint;
-    private Integer detaineeChange;
-    private Integer staffChange;
-    private Integer identityChange;
-    private Integer fingerprintChange;
+public class OverviewStatistics implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Long totalDetainees;
+    private Long totalStaff;
+    private Long totalIdentity;
+    private Long totalFingerprint;
+    private Long detaineeChange;
+    private Long staffChange;
+    private Long identityChange;
+    private Long fingerprintChange;
 
     // Additional metadata
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -27,9 +29,9 @@ public class OverviewStatistics {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String dataSource;
 
-    public OverviewStatistics(Integer activeDetainees, Integer activeStaff, Integer totalIdentityRecords,
-                              Integer totalFingerprintCards, Integer detaineeChange, Integer staffChange,
-                              Integer identityChange, Integer fingerprintChange) {
+    public OverviewStatistics(Long activeDetainees, Long activeStaff, Long totalIdentityRecords,
+                              Long totalFingerprintCards, Long detaineeChange, Long staffChange,
+                              Long identityChange, Long fingerprintChange) {
         this.totalDetainees = activeDetainees;
         this.totalStaff = activeStaff;
         this.totalIdentity = totalIdentityRecords;

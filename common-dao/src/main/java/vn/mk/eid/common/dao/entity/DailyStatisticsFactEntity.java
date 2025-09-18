@@ -28,7 +28,7 @@ public class DailyStatisticsFactEntity {
     private Long totalDetainees = 0L;
 
     @Column(name = "new_detainees")
-    private Integer newDetainees = 0;
+    private Long newDetainees = 0L;
 
     @Column(name = "released_detainees")
     private Long releasedDetainees = 0L;

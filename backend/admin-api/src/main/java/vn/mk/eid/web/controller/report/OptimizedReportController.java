@@ -6,6 +6,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.web.dto.report.OverviewStatistics;
 import vn.mk.eid.web.dto.report.ReportResponse;
 import vn.mk.eid.web.service.ETLService;
@@ -21,18 +22,19 @@ import java.time.LocalDate;
 public class OptimizedReportController {
     private final OptimizedReportService reportService;
     private final ETLService etlService;
-    private final ReportCacheService reportCacheService;
+    private final ReportCacheService cacheService;
 
     /**
      * Thống kê tổng quan (cached)
      */
     @GetMapping("/statistics/overview")
     @Cacheable(value = "overview-stats", key = "'current'")
-    public ResponseEntity<OverviewStatistics> getOverviewStatistics() {
+    public ServiceResult<OverviewStatistics> getOverviewStatistics() {
         OverviewStatistics stats = reportService.getOverviewStatistics();
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofMinutes(15)))
-                .body(stats);
+        return ServiceResult.ok(stats);
+//        return ResponseEntity.ok()
+//                .cacheControl(CacheControl.maxAge(Duration.ofMinutes(15)))
+//                .body(stats);
     }
 
     /**

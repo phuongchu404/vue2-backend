@@ -191,9 +191,9 @@ public class ETLService {
         return detaineeRepository.countDetaineesInPeriod(date, date);
     }
 
-    private Integer getReleasedDetaineesOnDate(LocalDate date) {
+    private Long getReleasedDetaineesOnDate(LocalDate date) {
         // Custom query needed
-        return 0; // Placeholder
+        return 0L; // Placeholder
     }
 
     private Long getActiveDetaineesUpToDate(LocalDate date) {
@@ -208,28 +208,28 @@ public class ETLService {
         return staffRepository.countStaffInPeriod(date, date);
     }
 
-    private Integer getActiveStaffUpToDate(LocalDate date) {
-        return staffRepository.countActiveStaff().intValue();
+    private Long getActiveStaffUpToDate(LocalDate date) {
+        return staffRepository.countActiveStaff();
     }
 
-    private Integer getTotalIdentityRecordsUpToDate(LocalDate date) {
+    private Long getTotalIdentityRecordsUpToDate(LocalDate date) {
         // Implementation needed
-        return 0; // Placeholder
+        return 0L; // Placeholder
     }
 
-    private Integer getNewIdentityRecordsOnDate(LocalDate date) {
+    private Long getNewIdentityRecordsOnDate(LocalDate date) {
         // Implementation needed
-        return 0; // Placeholder
+        return 0L; // Placeholder
     }
 
-    private Integer getTotalFingerprintCardsUpToDate(LocalDate date) {
+    private Long getTotalFingerprintCardsUpToDate(LocalDate date) {
         // Implementation needed
-        return 0; // Placeholder
+        return 0L; // Placeholder
     }
 
-    private Integer getNewFingerprintCardsOnDate(LocalDate date) {
+    private Long getNewFingerprintCardsOnDate(LocalDate date) {
         // Implementation needed
-        return 0; // Placeholder
+        return 0L; // Placeholder
     }
 
     private Long getNewDetaineesInMonth(Integer year, Integer month) {
