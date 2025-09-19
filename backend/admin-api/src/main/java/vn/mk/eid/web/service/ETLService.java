@@ -179,11 +179,8 @@ public class ETLService {
         }
     }
 
-
-
     // Helper methods for calculations
     private Long getTotalDetaineesUpToDate(LocalDate date) {
-        // Implementation depends on business logic
         return detaineeRepository.countDetaineesInPeriod(LocalDate.of(1900, 1, 1), date);
     }
 
@@ -192,12 +189,13 @@ public class ETLService {
     }
 
     private Long getReleasedDetaineesOnDate(LocalDate date) {
-        // Custom query needed
-        return 0L; // Placeholder
+
+        return detaineeRepository.countReleasedDetaineeInPeriod(date, date);
     }
 
     private Long getActiveDetaineesUpToDate(LocalDate date) {
-        return detaineeRepository.countDetainedDetainees();
+
+        return detaineeRepository.countDetainedInPeriod(date, date);
     }
 
     private Long getTotalStaffUpToDate(LocalDate date) {
@@ -205,31 +203,29 @@ public class ETLService {
     }
 
     private Long getNewStaffOnDate(LocalDate date) {
+
         return staffRepository.countStaffInPeriod(date, date);
     }
 
     private Long getActiveStaffUpToDate(LocalDate date) {
-        return staffRepository.countActiveStaff();
+
+        return staffRepository.countActiveStaffInPeriod(date,date);
     }
 
     private Long getTotalIdentityRecordsUpToDate(LocalDate date) {
-        // Implementation needed
-        return 0L; // Placeholder
+        return identityRecordRepository.countIdentityInPeriod(LocalDate.of(1900, 1, 1), date);
     }
 
     private Long getNewIdentityRecordsOnDate(LocalDate date) {
-        // Implementation needed
-        return 0L; // Placeholder
+        return identityRecordRepository.countIdentityInPeriod(date, date);
     }
 
     private Long getTotalFingerprintCardsUpToDate(LocalDate date) {
-        // Implementation needed
-        return 0L; // Placeholder
+        return fingerprintCardRepository.countFingerprintInPeriod(LocalDate.of(1900, 1, 1), date);
     }
 
     private Long getNewFingerprintCardsOnDate(LocalDate date) {
-        // Implementation needed
-        return 0L; // Placeholder
+        return fingerprintCardRepository.countFingerprintInPeriod(date, date);
     }
 
     private Long getNewDetaineesInMonth(Integer year, Integer month) {
@@ -278,8 +274,8 @@ public class ETLService {
                 deptStats.setReportDate(targetDate);
 
                 // Đếm staff trong department
-                Integer staffCount = getStaffCountByDepartmentAndDate(dept.getId(), targetDate);
-                Integer activeStaffCount = getActiveStaffCountByDepartmentAndDate(dept.getId(), targetDate);
+                Long staffCount = getStaffCountByDepartmentAndDate(dept.getId(), targetDate);
+                Long activeStaffCount = getActiveStaffCountByDepartmentAndDate(dept.getId(), targetDate);
                 Integer detaineesAssigned = getDetaineesAssignedToDepartment(dept.getId(), targetDate);
 
                 deptStats.setStaffCount(staffCount);
@@ -298,18 +294,18 @@ public class ETLService {
     }
 
     // Helper methods for department statistics
-    private Integer getStaffCountByDepartmentAndDate(Integer departmentId, LocalDate date) {
+    private Long getStaffCountByDepartmentAndDate(Integer departmentId, LocalDate date) {
         // Count all staff ever assigned to department up to this date
-        return staffRepository.countStaffInPeriod(LocalDate.of(1900, 1, 1), date).intValue();
+        return staffRepository.countStaffInPeriodByDepartmentId(LocalDate.of(1900, 1, 1), date, departmentId);
     }
 
-    private Integer getActiveStaffCountByDepartmentAndDate(Integer departmentId, LocalDate date) {
+    private Long getActiveStaffCountByDepartmentAndDate(Integer departmentId, LocalDate date) {
         // Count active staff in department on this date
-        return staffRepository.countActiveStaff().intValue(); // TODO: Add department filter
+        return staffRepository.countActiveStaffInPeriodByDepartmentId(date, date, departmentId);
     }
 
     private Integer getDetaineesAssignedToDepartment(Integer departmentId, LocalDate date) {
         // Count detainees assigned to this department
-        return detaineeRepository.countDetainedDetainees().intValue(); // TODO: Add department assignment logic
+        return detaineeRepository.countDetainedDetainees().intValue();
     }
 }

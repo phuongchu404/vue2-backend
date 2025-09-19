@@ -29,12 +29,12 @@ public class OptimizedReportController {
      */
     @GetMapping("/statistics/overview")
     @Cacheable(value = "overview-stats", key = "'current'")
-    public ServiceResult<OverviewStatistics> getOverviewStatistics() {
+    public ResponseEntity<OverviewStatistics> getOverviewStatistics() {
         OverviewStatistics stats = reportService.getOverviewStatistics();
-        return ServiceResult.ok(stats);
-//        return ResponseEntity.ok()
-//                .cacheControl(CacheControl.maxAge(Duration.ofMinutes(15)))
-//                .body(stats);
+//        return ServiceResult.ok(stats);
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofMinutes(15)))
+                .body(stats);
     }
 
     /**

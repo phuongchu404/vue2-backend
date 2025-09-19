@@ -70,8 +70,10 @@ public interface DetaineeRepository extends JpaRepository<DetaineeEntity, Long> 
     @Query("SELECT COUNT(d) FROM DetaineeEntity d WHERE d.status = 'DETAINED'")
     Long countDetainedDetainees();
 
-    @Query("SELECT COUNT(d) FROM DetaineeEntity d WHERE d.status = 'RELEASED'")
-    Long countReleasedDetainee();
+    @Query("SELECT COUNT(d) FROM DetaineeEntity d " +
+            "WHERE d.status = 'RELEASED' " +
+            "AND DATE(d.createdAt) BETWEEN :startDate AND :endDate")
+    Long countReleasedDetaineeInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     @Query("SELECT COUNT(d) FROM DetaineeEntity d WHERE DATE(d.createdAt) BETWEEN :startDate AND :endDate")
     Long countDetaineesInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
@@ -81,5 +83,15 @@ public interface DetaineeRepository extends JpaRepository<DetaineeEntity, Long> 
             "FROM detainees d GROUP BY d.status",
             nativeQuery = true)
     List<Object[]> getDetaineeStatusStatistics();
+
+    @Query("SELECT COUNT(d) FROM DetaineeEntity d " +
+            "WHERE d.status = 'DETAINED' AND DATE(d.createdAt) BETWEEN :startDate AND :endDate")
+    Long countDetainedInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT COUNT(d) FROM DetaineeEntity d inner join IdentityRecordEntity ir on d.id = ir.detaineeId")
+    Long countDetaineesWithIdentityRecords();
+
+    @Query("SELECT COUNT(d) FROM DetaineeEntity d inner join FingerprintCardEntity fc on d.id = fc.personId")
+    Long countDetaineesWithFingerprintCards();
 
 }

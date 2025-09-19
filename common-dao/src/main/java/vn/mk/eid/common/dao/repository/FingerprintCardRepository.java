@@ -31,4 +31,6 @@ public interface FingerprintCardRepository extends JpaRepository<FingerprintCard
 
     @Query("SELECT COUNT(fc) FROM FingerprintCardEntity fc WHERE DATE(fc.createdDate) BETWEEN :startDate AND :endDate")
     Long countFingerprintInPeriod(@Param("startDate") LocalDate startDate,@Param("endDate") LocalDate endDate);
+
+
 }

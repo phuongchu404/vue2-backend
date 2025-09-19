@@ -56,12 +56,20 @@ public interface StaffRepository extends JpaRepository<StaffEntity, Integer>, Jp
     @Query("SELECT COUNT(s) FROM StaffEntity s WHERE s.isActive = true")
     Long countByIsActiveTrue();
 
-
-    @Query("SELECT COUNT(s) FROM StaffEntity s WHERE s.status = 'ACTIVE' AND s.isActive = true")
+    @Query("SELECT COUNT(s) FROM StaffEntity s WHERE s.isActive = true")
     Long countActiveStaff();
+
+    @Query("SELECT COUNT(s) FROM StaffEntity s WHERE s.isActive = true AND s.departmentId = :departmentId AND DATE(s.createdAt) BETWEEN :startDate AND :endDate")
+    Long countActiveStaffInPeriodByDepartmentId(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("departmentId") Integer departmentId);
+
+    @Query("SELECT COUNT(s) FROM StaffEntity s WHERE s.isActive = true AND DATE(s.createdAt) BETWEEN :startDate AND :endDate")
+    Long countActiveStaffInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     @Query("SELECT COUNT(s) FROM StaffEntity s WHERE DATE(s.createdAt) BETWEEN :startDate AND :endDate")
     Long countStaffInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT COUNT(s) FROM StaffEntity s WHERE DATE(s.createdAt) BETWEEN :startDate AND :endDate AND s.departmentId = :departmentId")
+    Long countStaffInPeriodByDepartmentId(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("departmentId") Integer departmentId);
 
     @Query("SELECT d.name, COUNT(s), SUM(CASE WHEN (s.status = 'ACTIVE' and s.isActive = true) THEN 1 ELSE 0 END) " +
             "FROM StaffEntity s JOIN DepartmentEntity d ON s.departmentId = d.id " +
