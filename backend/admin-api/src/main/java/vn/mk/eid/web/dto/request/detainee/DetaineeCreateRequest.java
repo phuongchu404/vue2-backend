@@ -3,6 +3,7 @@ package vn.mk.eid.web.dto.request.detainee;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 @Data
 public class DetaineeCreateRequest {
@@ -59,10 +60,10 @@ public class DetaineeCreateRequest {
     private String spouseName;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date detentionDate;
+    private LocalDate detentionDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date expectedReleaseDate;
+    private LocalDate expectedReleaseDate;
 
     private String caseNumber;
 

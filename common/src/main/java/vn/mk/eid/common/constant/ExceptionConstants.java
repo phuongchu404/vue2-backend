@@ -36,4 +36,5 @@ public class ExceptionConstants {
     // fingerprint
     public static final String FINGER_PRINT_NOT_FOUND = "Finger Print not found";
     public static final String DUPLICATE_FINGER_PRINT_IMPRESSION = "This detainee already has a finger print impression";
+    public static final String DUPLICATE_DEPARTMENT_CODE = "DUPLICATE DEPARTMENT CODE";
 }

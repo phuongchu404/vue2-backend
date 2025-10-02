@@ -20,10 +20,10 @@ public interface ReportService {
     // Specific report methods
     ReportResponse getDetaineesByStatusReport(LocalDate fromDate, LocalDate toDate);
     ReportResponse getDetaineesByMonthReport(LocalDate fromDate, LocalDate toDate);
-//    ReportResponse getStaffByDepartmentReport();
-//    ReportResponse getIdentityRecordsReport(LocalDate fromDate, LocalDate toDate);
-//    ReportResponse getFingerprintCardsReport(LocalDate fromDate, LocalDate toDate);
-//    ReportResponse getMonthlySummaryReport(LocalDate month);
+    ReportResponse getStaffByDepartmentReport();
+    ReportResponse getIdentityRecordsReport(LocalDate fromDate, LocalDate toDate);
+    ReportResponse getFingerprintCardsReport(LocalDate fromDate, LocalDate toDate);
+    ReportResponse getMonthlySummaryReport(LocalDate month);
 //
 //    // Department-specific reports (new)
 //    ReportResponse getDepartmentTrendsReport(Long departmentId, LocalDate fromDate, LocalDate toDate);
@@ -38,5 +38,5 @@ public interface ReportService {
 //
 //    // Cache management
 //    void refreshReportCache(String reportType);
-//    void clearAllReportCache();
+    void clearAllReportCache();
 }

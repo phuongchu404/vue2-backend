@@ -7,9 +7,16 @@ import io.minio.MinioClient;
 import io.minio.SetBucketPolicyArgs;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 
 @Configuration
 @Slf4j
@@ -41,6 +48,7 @@ public class MinioConfig {
         MinioClient minioClient = MinioClient.builder()
                 .endpoint(minioUrl)
                 .credentials(accessKey, secretKey)
+                .httpClient(getUnsafeOkHttpClient())
                 .build();
 
         boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketPrivate).build());
@@ -63,5 +71,26 @@ public class MinioConfig {
         }
 
         return minioClient;
+    }
+    private OkHttpClient getUnsafeOkHttpClient() {
+        try {
+            final TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+                        public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[]{}; }
+                    }
+            };
+
+            final SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, new SecureRandom());
+
+            return new OkHttpClient.Builder()
+                    .sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0])
+                    .hostnameVerifier((hostname, session) -> true)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -9,9 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.mk.eid.common.dao.entity.StaffEntity;
 
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,4 +73,7 @@ public interface StaffRepository extends JpaRepository<StaffEntity, Integer>, Jp
             "FROM StaffEntity s JOIN DepartmentEntity d ON s.departmentId = d.id " +
             "GROUP BY d.id, d.name")
     List<Object[]> getStaffByDepartmentStatistics();
+
+    @Query("SELECT COUNT(s) FROM StaffEntity s WHERE s.isActive = false AND DATE(s.createdAt) BETWEEN :startDate AND :endDate")
+    Long countTerminatedStaffInPeriod(LocalDate startDate, LocalDate endDate);
 }

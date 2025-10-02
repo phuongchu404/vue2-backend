@@ -71,11 +71,11 @@ public interface DetaineeRepository extends JpaRepository<DetaineeEntity, Long> 
     Long countDetainedDetainees();
 
     @Query("SELECT COUNT(d) FROM DetaineeEntity d " +
-            "WHERE d.status = 'RELEASED' " +
-            "AND DATE(d.createdAt) BETWEEN :startDate AND :endDate")
+            "WHERE d.status = 'RELEASED' AND d.actualReleaseDate <> null " +
+            "AND DATE(d.actualReleaseDate) BETWEEN :startDate AND :endDate")
     Long countReleasedDetaineeInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-    @Query("SELECT COUNT(d) FROM DetaineeEntity d WHERE DATE(d.createdAt) BETWEEN :startDate AND :endDate")
+    @Query("SELECT COUNT(d) FROM DetaineeEntity d WHERE DATE(d.detentionDate) BETWEEN :startDate AND :endDate")
     Long countDetaineesInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     @Query(value = "SELECT d.status, COUNT(*) AS cnt, " +
@@ -85,7 +85,7 @@ public interface DetaineeRepository extends JpaRepository<DetaineeEntity, Long> 
     List<Object[]> getDetaineeStatusStatistics();
 
     @Query("SELECT COUNT(d) FROM DetaineeEntity d " +
-            "WHERE d.status = 'DETAINED' AND DATE(d.createdAt) BETWEEN :startDate AND :endDate")
+            "WHERE d.status = 'DETAINED' AND DATE(d.detentionDate) BETWEEN :startDate AND :endDate")
     Long countDetainedInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     @Query("SELECT COUNT(d) FROM DetaineeEntity d inner join IdentityRecordEntity ir on d.id = ir.detaineeId")
@@ -94,4 +94,12 @@ public interface DetaineeRepository extends JpaRepository<DetaineeEntity, Long> 
     @Query("SELECT COUNT(d) FROM DetaineeEntity d inner join FingerprintCardEntity fc on d.id = fc.personId")
     Long countDetaineesWithFingerprintCards();
 
+    @Query("SELECT d.detaineeCode, d.fullName FROM DetaineeEntity d WHERE d.detentionDate BETWEEN :startDate AND :endDate")
+    List<Object[]> findDetaineesForIdentityRecords(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT COUNT(d) FROM DetaineeEntity d WHERE d.status = 'TRANSFERRED' AND DATE(d.createdAt) BETWEEN :startDate AND :endDate")
+    Long countTransferredDetaineesInPeriod(LocalDate startDate, LocalDate endDate);
+
+    @Query("SELECT COUNT(d) FROM DetaineeEntity d WHERE d.status = 'DETAINED' AND d.detentionDate <= :endOfMonth")
+    Long countActiveDetaineesAsOfDate(@Param("endOfMonth") LocalDate endOfMonth);
 }

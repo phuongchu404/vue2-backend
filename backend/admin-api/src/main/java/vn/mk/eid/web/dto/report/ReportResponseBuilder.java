@@ -1,10 +1,12 @@
 package vn.mk.eid.web.dto.report;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-public class ReportResponseBuilder {
+public class ReportResponseBuilder implements Serializable {
+    private static final long serialVersionUID = 1L;
     private ReportResponse response;
 
     public ReportResponseBuilder(String title) {

@@ -37,5 +37,5 @@ public class FingerprintCardResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    private List<PhotoResponse> fingerPrintImages;
+    private List<FingerprintImpressionResponse> fingerPrintImages;
 }

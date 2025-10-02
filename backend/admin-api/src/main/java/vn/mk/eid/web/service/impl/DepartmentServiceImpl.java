@@ -17,9 +17,11 @@ import vn.mk.eid.common.dao.repository.DepartmentRepository;
 import vn.mk.eid.common.dao.repository.DetentionCenterRepository;
 import vn.mk.eid.common.data.ServiceResult;
 import vn.mk.eid.common.util.BeanMapper;
+import vn.mk.eid.common.util.StringUtil;
 import vn.mk.eid.web.dto.request.department.DepartmentSaveRequest;
 import vn.mk.eid.web.dto.request.department.QueryDepartmentRequest;
 import vn.mk.eid.web.dto.response.DepartmentResponse;
+import vn.mk.eid.web.exception.BadRequestException;
 import vn.mk.eid.web.exception.ResourceNotFoundException;
 import vn.mk.eid.web.repository.DepartmentRepositoryCustom;
 import vn.mk.eid.web.dto.response.DepartmentResponse;
@@ -28,6 +30,7 @@ import vn.mk.eid.web.service.SequenceService;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +46,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     public ServiceResult getWithPaging(QueryDepartmentRequest request) {
         Pageable pageable = null;
         if (request.getPageNo() != null && request.getPageSize() != null) {
-            pageable = PageRequest.of(request.getPageNo()-1, request.getPageSize(), Sort.by(Sort.Direction.DESC, "name"));
+			pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize(), Sort.by(Sort.Direction.DESC, "name"));
         }
 
         Page<DepartmentResponse> page = departmentRepositoryCustom.getWithPaging(request, pageable);
@@ -55,9 +58,18 @@ public class DepartmentServiceImpl implements DepartmentService {
         DetentionCenterEntity detentionCenter = detentionCenterRepository.findById(request.getDetentionCenterId())
                 .orElseThrow(() -> new ResourceNotFoundException(ExceptionConstants.DETENTION_CENTER_NOT_FOUND));
 
+        if (StringUtil.isNotBlank(request.getCode())) {
+            Optional<DepartmentEntity> optionalDepartment = departmentRepository.findByCodeAndDetentionCenterId(request.getCode(), request.getDetentionCenterId());
+            if (optionalDepartment.isPresent()) {
+                throw new BadRequestException(ExceptionConstants.DUPLICATE_DEPARTMENT_CODE);
+            }
+        }
+
         DepartmentEntity department = new DepartmentEntity();
         BeanUtils.copyProperties(request, department);
-        department.setCode(sequenceService.genCode(Constants.CodePrefix.DEPARTMENT));
+        if (StringUtil.isBlank(request.getCode())) {
+            department.setCode(sequenceService.genCode(Constants.CodePrefix.DEPARTMENT));
+        }
         departmentRepository.save(department);
 
         log.info("[DEPARTMENT] created: {}", department.getCode());

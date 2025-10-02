@@ -5,10 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReportColumn {
+public class ReportColumn implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String key;        // Field key for data access
     private String title;      // Display title
     private String type;       // "text", "number", "date", "percentage", "currency"

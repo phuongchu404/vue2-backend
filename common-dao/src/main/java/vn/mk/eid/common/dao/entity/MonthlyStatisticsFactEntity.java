@@ -29,6 +29,9 @@ public class MonthlyStatisticsFactEntity {
     @Column(name = "new_detainees")
     private Long newDetainees = 0L;
 
+    @Column(name = "released_detainees")
+    private Long releasedDetainees = 0L;
+
     @Column(name = "total_staff")
     private Long totalStaff = 0L;
 

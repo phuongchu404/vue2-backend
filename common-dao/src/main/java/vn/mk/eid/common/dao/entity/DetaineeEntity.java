@@ -122,13 +122,13 @@ public class DetaineeEntity {
     // thong tin phap ly
     @NotNull
     @Column(name = "detention_date", nullable = false)
-    private Date detentionDate; // ngay tam giam
+    private LocalDate detentionDate; // ngay tam giam
 
     @Column(name = "expected_release_date")
-    private Date expectedReleaseDate; // ngay du kien tha
+    private LocalDate expectedReleaseDate; // ngay du kien tha
 
     @Column(name = "actual_release_date")
-    private Date actualReleaseDate; // ngay thuc te tha
+    private LocalDate actualReleaseDate; // ngay thuc te tha
 
     @Size(max = 50)
     @Column(name = "case_number", length = 50)

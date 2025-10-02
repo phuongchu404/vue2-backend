@@ -51,6 +51,13 @@ public class FingerprintCardServiceImpl implements FingerprintCardService {
     @Override
     public ServiceResult getWithPaging(Pageable pageable, QueryFingerPrintRequest request) {
         Page<FingerprintCardResponse> page = fingerPrintRepositoryCustom.getWithPaging(pageable, request);
+        List<FingerprintCardResponse> list = page.getContent();
+        if(!list.isEmpty()){
+            for(FingerprintCardResponse response : list){
+                List<FingerprintImpressionResponse> photoResponses = this.getFingerprintImpressions(response.getId());
+                response.setFingerPrintImages(photoResponses);
+            }
+        }
         return ServiceResult.ok(page);
     }
 
@@ -90,7 +97,9 @@ public class FingerprintCardServiceImpl implements FingerprintCardService {
                 String imageKey = entry.getKey();
                 MultipartFile imageFile = entry.getValue();
 
+
                 if (imageFile != null && !imageFile.isEmpty()) {
+                    Long size = imageFile.getSize();
                     // upload image to MinIO
                     String extensionFile = FileUtil.getExtensionOfFile(imageFile.getOriginalFilename());
                     String fileName = WebConstants.Fingerprint.FINGERPRINT_PREFIX + fingerprintCardId + WebConstants.CommonSymbol.SHIFT_DASH +
@@ -111,6 +120,7 @@ public class FingerprintCardServiceImpl implements FingerprintCardService {
                     impression.setBucket(dir);
                     impression.setObjectUrl(uploadData);
                     impression.setImageKey(fileName);
+                    impression.setSize(size);
 
                     impressions.add(impression);
                 }
@@ -166,13 +176,22 @@ public class FingerprintCardServiceImpl implements FingerprintCardService {
         return null;
     }
 
-    @Override
-    public ServiceResult getFingerprintImpressions(Long cardId) {
+//    @Override
+//    public ServiceResult getFingerprintImpressions(Long cardId) {
+//        FingerprintCardEntity card = fingerprintCardRepository.findById(cardId)
+//                .orElseThrow(() -> new BadRequestException("Fingerprint card not found"));
+//
+//        List<PhotoResponse> photoResponses = getFingerImageResponse(card, Boolean.TRUE);
+//        return ServiceResult.ok(photoResponses);
+//    }
+
+
+    private List<FingerprintImpressionResponse> getFingerprintImpressions(Long cardId) {
         FingerprintCardEntity card = fingerprintCardRepository.findById(cardId)
                 .orElseThrow(() -> new BadRequestException("Fingerprint card not found"));
 
-        List<PhotoResponse> photoResponses = getFingerImageResponse(card, Boolean.TRUE);
-        return ServiceResult.ok(photoResponses);
+        List<FingerprintImpressionResponse> photoResponses = getFingerImageResponse(card, Boolean.TRUE);
+        return photoResponses;
     }
 
     @Override
@@ -198,6 +217,7 @@ public class FingerprintCardServiceImpl implements FingerprintCardService {
             case "LEFT_MIDDLE":
             case "LEFT_RING":
             case "LEFT_LITTLE":
+            case "BOTH_THUMBS":
                 return FingerKind.PLAIN_SINGLE.name();
             case "LEFT_FOUR":
                 return FingerKind.PLAIN_LEFT_FOUR.name();
@@ -227,23 +247,23 @@ public class FingerprintCardServiceImpl implements FingerprintCardService {
         response.setCreatedAt(card.getCreatedAt());
         response.setUpdatedAt(card.getUpdatedAt());
 
-        List<PhotoResponse> fingerprintImages = getFingerImageResponse(card, isGetLink);
+        List<FingerprintImpressionResponse> fingerprintImages = getFingerImageResponse(card, isGetLink);
         response.setFingerPrintImages(fingerprintImages);
 
         return response;
     }
 
     @NotNull
-    private List<PhotoResponse> getFingerImageResponse(FingerprintCardEntity card, Boolean isGetLink) {
+    private List<FingerprintImpressionResponse> getFingerImageResponse(FingerprintCardEntity card, Boolean isGetLink) {
         List<FingerprintImpressionEntity> fingers = fingerprintImpressionRepository.findByFingerprintCardId(card.getId());
-        List<PhotoResponse> fingerprintImages = new ArrayList<>();
+        List<FingerprintImpressionResponse> fingerprintImages = new ArrayList<>();
         for (FingerprintImpressionEntity item : fingers) {
-            PhotoResponse photoResponse = new PhotoResponse();
-            BeanUtils.copyProperties(item, photoResponse);
+            FingerprintImpressionResponse response = new FingerprintImpressionResponse();
+            BeanUtils.copyProperties(item, response);
             if (isGetLink != null && isGetLink) {
-                photoResponse.setLinkUrl(minioService.getFileUrl(photoResponse.getObjectUrl(), photoResponse.getBucket(), MinioService.DownloadOption.builder().isPublic(false).build()));
+                response.setLinkUrl(minioService.getFileUrl(response.getObjectUrl(), response.getBucket(), MinioService.DownloadOption.builder().isPublic(false).build()));
             }
-            fingerprintImages.add(photoResponse);
+            fingerprintImages.add(response);
         }
         return fingerprintImages;
     }

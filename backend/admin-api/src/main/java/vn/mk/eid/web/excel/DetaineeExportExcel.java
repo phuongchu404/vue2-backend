@@ -183,6 +183,10 @@ public class DetaineeExportExcel {
         return date == null ? "" : new SimpleDateFormat("dd-MM-yyyy").format(date);
     }
 
+    private String fmt(LocalDate date) {
+        return date == null ? "" : date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+    }
+
     private String nvl(String s) {
         return s == null ? "" : s;
     }

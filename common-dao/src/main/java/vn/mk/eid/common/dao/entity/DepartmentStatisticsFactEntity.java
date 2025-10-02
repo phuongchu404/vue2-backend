@@ -26,13 +26,13 @@ public class DepartmentStatisticsFactEntity {
     private LocalDate reportDate;
 
     @Column(name = "staff_count")
-    private Integer staffCount = 0;
+    private Long staffCount = 0L;
 
     @Column(name = "active_staff_count")
-    private Integer activeStaffCount = 0;
+    private Long activeStaffCount = 0L;
 
     @Column(name = "detainees_assigned")
-    private Integer detaineesAssigned = 0;
+    private Long detaineesAssigned = 0L;
 
     @Column(name = "created_date")
     @CreationTimestamp

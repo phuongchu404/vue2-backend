@@ -11,8 +11,8 @@ import org.springframework.web.client.RestTemplate;
 
 //@EnableConfigurationProperties(RestTemplateProperties.class)
 @Configuration
-@EnableJpaRepositories("vn.mk.eid.visitor.common.dao.repository")
-@EntityScan("vn.mk.eid.visitor.common.dao.entity")
+//@EnableJpaRepositories("vn.mk.eid.common.dao.repository")
+//@EntityScan("vn.mk.eid.common.dao.entity")
 public class AdminApiConfiguration {
 
 	@Bean

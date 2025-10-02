@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,8 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReportResponse {
+public class ReportResponse implements Serializable {
+    private static  final long serialVersionUID = 1L;
     private String title;
     private List<ReportColumn> columns;
     private List<Map<String, Object>> data;

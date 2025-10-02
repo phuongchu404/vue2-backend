@@ -104,10 +104,10 @@ public class DetaineeController {
     })
     public ServiceResult getAllDetainees(
             QueryDetaineeRequest request,
-            @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size) {
+            @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int pageNo,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int pageSize) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
         return detaineeService.getWithPaging(request, pageable);
     }
 

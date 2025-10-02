@@ -15,4 +15,5 @@ public enum FingerType {
     RIGHT_FOUR,  // 4 ngon tay phai
     LEFT_FULL, // toan bo ban tay trai
     RIGHT_FULL, // toan bo ban tay phai
+    BOTH_THUMBS // chum 2 ngon cai
 }

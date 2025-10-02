@@ -57,4 +57,7 @@ public class FingerprintImpressionEntity {
     @CreationTimestamp
     private LocalDateTime capturedAt;
 
+    @Column(name = "size")
+    private Long size;
+
 }

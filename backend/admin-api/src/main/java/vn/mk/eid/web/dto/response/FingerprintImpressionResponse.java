@@ -13,6 +13,8 @@ public class FingerprintImpressionResponse {
     private String bucket;
     private String imageKey;
     private String objectUrl;
+    private String linkUrl;
     private Short qualityScore;
     private LocalDateTime capturedAt;
+    private Long size;
 }

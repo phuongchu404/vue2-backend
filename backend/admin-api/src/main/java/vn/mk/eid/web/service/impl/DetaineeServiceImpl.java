@@ -98,7 +98,7 @@ public class DetaineeServiceImpl implements DetaineeService {
         detainee = detaineeRepository.save(detainee);
 
         // Create initial detention history
-        createDetentionHistory(detainee, detentionCenter, request.getDetentionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), request.getCellNumber(), "Initial detention", DetentionHistoryType.INITIAL.name());
+        createDetentionHistory(detainee, detentionCenter, request.getDetentionDate(), request.getCellNumber(), "Initial detention", DetentionHistoryType.INITIAL.name());
 
         // Update detention center population
         updateDetentionCenterPopulation(detentionCenter);

@@ -6,6 +6,7 @@ import lombok.Data;
 import vn.mk.eid.web.constant.Gender;
 import vn.mk.eid.web.utils.StringUtil;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -59,13 +60,13 @@ public class DetaineeResponse {
     private String spouseName;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date detentionDate;
+    private LocalDate detentionDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date expectedReleaseDate;
+    private LocalDate expectedReleaseDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date actualReleaseDate;
+    private LocalDate actualReleaseDate;
 
     private String caseNumber;
     private String charges;

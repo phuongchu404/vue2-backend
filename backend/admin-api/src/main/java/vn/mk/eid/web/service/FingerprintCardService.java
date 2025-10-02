@@ -19,7 +19,7 @@ public interface FingerprintCardService {
 
     ServiceResult uploadFingerprintImpression(Long cardId, String kind, String finger, MultipartFile file);
 
-    ServiceResult getFingerprintImpressions(Long cardId);
+//    ServiceResult getFingerprintImpressions(Long cardId);
 
     ServiceResult deleteFingerPrint(Long id);
 }

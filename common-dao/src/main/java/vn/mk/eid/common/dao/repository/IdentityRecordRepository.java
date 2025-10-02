@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import vn.mk.eid.common.dao.entity.IdentityRecordEntity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,4 +40,13 @@ public interface IdentityRecordRepository extends JpaRepository<IdentityRecordEn
 
     @Query("SELECT COUNT(i) FROM IdentityRecordEntity i WHERE DATE(i.createdAt) BETWEEN :startDate AND :endDate")
     Long countIdentityInPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT ir.id, d.detaineeCode, d.fullName,ir.createdAt, count(*), ROUND(count(*)*100.0/3.0, 2) " +
+            "FROM IdentityRecordEntity ir " +
+            "JOIN DetaineeEntity d ON ir.detaineeId = d.id " +
+            "WHERE ir.createdAt BETWEEN :startDate AND :endDate " +
+            "GROUP BY ir.id, d.detaineeCode, d.fullName,ir.createdAt " +
+            "ORDER BY ir.createdAt DESC")
+ List<Object[]> findIdentityRecordsWithDetails(@Param("startDate") LocalDateTime startDate,
+                                              @Param("endDate") LocalDateTime endDate);
 }

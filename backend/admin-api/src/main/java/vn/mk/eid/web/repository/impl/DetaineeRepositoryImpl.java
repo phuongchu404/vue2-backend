@@ -55,8 +55,8 @@ public class DetaineeRepositoryImpl implements DetaineeRepositoryCustom {
         }
 
         if(StringUtil.isNotBlank(request.getDetaineeCode())){
-            sql.append(" AND d.detainee_code = :detaineeCode ");
-            params.put("detaineeCode", request.getDetaineeCode());
+            sql.append(" AND LOWER(d.detainee_code) like LOWER(:detaineeCode) ");
+            params.put("detaineeCode", Common.getValueSelectLike(request.getDetaineeCode()));
         }
         if(StringUtil.isNotBlank(request.getIdNumber())){
             sql.append(" AND d.id_number = :idNumber ");

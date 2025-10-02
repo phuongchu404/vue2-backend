@@ -1,6 +1,9 @@
 package vn.mk.eid.web.dto.report;
 
-public class ReportColumnFactory {
+import java.io.Serializable;
+
+public class ReportColumnFactory implements Serializable {
+    private static final long serialVersionUID = 1L;
     public static ReportColumn createTextColumn(String key, String title) {
         return new ReportColumn(key, title, "text", true, null, null);
     }

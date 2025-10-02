@@ -229,13 +229,13 @@ public class DepartmentAnalyticsService {
         return forecast;
     }
 
-    private double calculateAverageGrowth(List<DepartmentStatisticsFactEntity> data, Function<DepartmentStatisticsFactEntity, Integer> extractor) {
+    private double calculateAverageGrowth(List<DepartmentStatisticsFactEntity> data, Function<DepartmentStatisticsFactEntity, Long> extractor) {
         if (data.size() < 2) return 0.0;
 
         List<Double> growthRates = new ArrayList<>();
         for (int i = 1; i < data.size(); i++) {
-            int current = extractor.apply(data.get(i));
-            int previous = extractor.apply(data.get(i - 1));
+            long current = extractor.apply(data.get(i));
+            long previous = extractor.apply(data.get(i - 1));
 
             if (previous != 0) {
                 growthRates.add((double) (current - previous) / previous);

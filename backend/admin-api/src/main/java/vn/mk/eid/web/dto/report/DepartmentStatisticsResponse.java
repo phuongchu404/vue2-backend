@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DepartmentStatisticsResponse {
+public class DepartmentStatisticsResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Integer departmentId;
     private String departmentName;
     private LocalDate reportDate;

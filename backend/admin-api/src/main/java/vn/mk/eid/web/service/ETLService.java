@@ -9,17 +9,11 @@ import vn.mk.eid.common.dao.entity.DepartmentEntity;
 import vn.mk.eid.common.dao.entity.DepartmentStatisticsFactEntity;
 import vn.mk.eid.common.dao.entity.MonthlyStatisticsFactEntity;
 import vn.mk.eid.common.dao.repository.*;
-import vn.mk.eid.web.dto.report.ChartData;
-import vn.mk.eid.web.dto.report.ForecastPoint;
-import vn.mk.eid.web.dto.report.ReportInsight;
-import vn.mk.eid.web.dto.report.ReportResponse;
 import vn.mk.eid.web.exception.ETLException;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -161,6 +155,7 @@ public class ETLService {
             } else {
                 // Tính trực tiếp từ raw data
                 stats.setNewDetainees(getNewDetaineesInMonth(year, month));
+                stats.setReleasedDetainees(getReleasedDetaineesInMonth(year, month));
                 stats.setNewStaff(getNewStaffInMonth(year, month));
                 stats.setNewIdentityRecords(getNewIdentityRecordsInMonth(year, month));
                 stats.setNewFingerprintCards(getNewFingerprintCardsInMonth(year, month));
@@ -195,7 +190,7 @@ public class ETLService {
 
     private Long getActiveDetaineesUpToDate(LocalDate date) {
 
-        return detaineeRepository.countDetainedInPeriod(date, date);
+        return detaineeRepository.countDetainedInPeriod(LocalDate.of(1900, 1, 1), date);
     }
 
     private Long getTotalStaffUpToDate(LocalDate date) {
@@ -209,7 +204,7 @@ public class ETLService {
 
     private Long getActiveStaffUpToDate(LocalDate date) {
 
-        return staffRepository.countActiveStaffInPeriod(date,date);
+        return staffRepository.countActiveStaffInPeriod(LocalDate.of(1900, 1, 1),date);
     }
 
     private Long getTotalIdentityRecordsUpToDate(LocalDate date) {
@@ -233,6 +228,13 @@ public class ETLService {
         LocalDate endOfMonth = startOfMonth.plusMonths(1).minusDays(1);
         return detaineeRepository.countDetaineesInPeriod(startOfMonth, endOfMonth);
     }
+
+    private Long getReleasedDetaineesInMonth(Integer year, Integer month) {
+        LocalDate startOfMonth = LocalDate.of(year, month, 1);
+        LocalDate endOfMonth = startOfMonth.plusMonths(1).minusDays(1);
+        return detaineeRepository.countReleasedDetaineeInPeriod(startOfMonth, endOfMonth);
+    }
+
 
     private Long getNewStaffInMonth(Integer year, Integer month) {
         LocalDate startOfMonth = LocalDate.of(year, month, 1);
@@ -276,11 +278,11 @@ public class ETLService {
                 // Đếm staff trong department
                 Long staffCount = getStaffCountByDepartmentAndDate(dept.getId(), targetDate);
                 Long activeStaffCount = getActiveStaffCountByDepartmentAndDate(dept.getId(), targetDate);
-                Integer detaineesAssigned = getDetaineesAssignedToDepartment(dept.getId(), targetDate);
+//                Integer detaineesAssigned = getDetaineesAssignedToDepartment(dept.getId(), targetDate);
 
                 deptStats.setStaffCount(staffCount);
                 deptStats.setActiveStaffCount(activeStaffCount);
-                deptStats.setDetaineesAssigned(detaineesAssigned);
+//                deptStats.setDetaineesAssigned(detaineesAssigned);
 
                 departmentStatsRepository.save(deptStats);
             }
@@ -304,8 +306,8 @@ public class ETLService {
         return staffRepository.countActiveStaffInPeriodByDepartmentId(date, date, departmentId);
     }
 
-    private Integer getDetaineesAssignedToDepartment(Integer departmentId, LocalDate date) {
-        // Count detainees assigned to this department
-        return detaineeRepository.countDetainedDetainees().intValue();
-    }
+//    private Integer getDetaineesAssignedToDepartment(Integer departmentId, LocalDate date) {
+//        // Count detainees assigned to this department
+//        return detaineeRepository.countDetainedDetainees();
+//    }
 }
